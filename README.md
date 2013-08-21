@@ -107,7 +107,7 @@ Similar to #4, provide a statistics page of the 20 most popular products. Intere
 
 * Don't waste your time with IE8. We will test your tool in the latest Chrome and Firefox.
 * Use any CSS/JS library/framework you want. Good coders code, great reuse.
-* Don't spend a lot of time with visuals. The tool should look OK, but above all else, it should be functional. A minimalist approach that doesn't hurt our eyes should be fine.
+* Don't spend a lot of time with visuals. The tool should look OK, but above all else, it should be functional. A minimalist approach that doesn't hurt our eyes should be fine. If you have the time to make it smooth and shiny (but won't distract from the data), it's great, impress us!
 * You might want to use some templating facility to generate page components (`document.createElement()` will quickly get out of hand).
 * You might find that expressing the filtering/statistics problems using functional programming idioms (map, filter, reduce) will result in clean, elegant code. Or the contrary:) Do whatever floats your boat.
 * Don't be stressed out if you are running out of time. Do the agile thing, and cut the scope. Just get something to work and push it out to production. Somebody's going to finish up the rest incrementally:)
