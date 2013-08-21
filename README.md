@@ -19,13 +19,13 @@ Some notes on non-trivial fields:
 * `added_products` contains the items currently being added to the cart
 * `cart` contains the current cart contents.
 * `viewed_products`, `added_products`, `purchased_products` and `cart` are list of item info objects. Item infos have the following fields:
-  * `id`: the product ID
-  * `f`: the feature ID. Indicates that the event originated from a recommender box (eg. the user clicked on a recommender box, and then added the item to the cart).
-  * `p`: total price
-  * `q`: quantity
+    * `id`: the product ID
+    * `f`: the feature ID. Indicates that the event originated from a recommender box (eg. the user clicked on a recommender box, and then added the item to the cart).
+    * `p`: total price
+    * `q`: quantity
 * `impressions`
-  * a list of recommender boxes (features) that was shown to the visitor (eg. RELATED, PERSONAL)
-  * each entry contains a list of product IDs (`item_impressions`)
+    * a list of recommender boxes (features) that was shown to the visitor (eg. RELATED, PERSONAL)
+    * each entry contains a list of product IDs (`item_impressions`)
 
 One event may contain several of the above fields. For example the following event object says that visitor `4F6B6D2E72F75AA7` viewed product `149923` and was presented with a recommendation box (RELATED_CZ) containing 6 products.
 
