@@ -74,7 +74,7 @@ This is similar to task #2, but with product IDs. When I click on a product ID, 
 
 ### Task 4 - Top visitors
 
-Having the ability to filter individual visitors and products is nice, but it's still hard to find the really interesting visitors and products.
+Having the ability to filter individual visitors and products is nice, but it's still hard to find the really interesting visitors.
 
 Provide a little statistics page (if possible within the application, without a page load) that summarizes some interesting metrics of the top 20 visitors:
 
@@ -87,21 +87,11 @@ Provide a little statistics page (if possible within the application, without a 
 
 It would be nice to be able to sort this little table by the above metrics. Clicking on a visitor ID should take me back to that visitor's event stream.
 
-### Task 5 - Top products
-
-Similar to #4, provide a statistics page of the 20 most popular products. Interesting metrics:
-
-* number of views
-* number of purchases
-* number of times we recommended the product
-* number of times people clicked on the product
-* CTR of the product
-
 ## Your Submission
 
 1. fork this repository here, on Bitbucket.
 2. solve the assignment (commit early and often!)
-3. invite us to your repo (andrascsibi, phraktle)
+3. invite us to your repo (andrascsibi, phraktle, dfogaras)
 
 ### Additional notes/hints
 
