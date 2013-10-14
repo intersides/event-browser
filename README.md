@@ -52,7 +52,7 @@ Use the `getImage` global function to get an image thumbnail representing the pr
 
 ### Task 1 - Show the event stream
 
-Build a page that shows the event stream line-by-line, just as if it were a Twitter feed. Show the most recent event first. The actual display is up to you, but you should show us everything you can about a particular event (timestamp, visitor ID, event type(s), products that the visitor interacted with, at least the first few products that we recommended to the user, price & quantity in case of a purchase/add-to-cart).
+Build a page that shows the event stream line-by-line, just as if it were a Twitter feed. Show the most recent event first. The actual display is up to you, but you should show us everything you can about a particular event (timestamp, visitor ID, event type(s), products that the visitor interacted with, at least the first few products that we recommended to the user, price & quantity in case of a purchase/add-to-cart). On the other hand, the representation of an event should be concise, we want to see as many events as possible on a single screen.
 
 Events that are generated directly from Scarab recommendation boxes (`iteminfo.f != null`) should really stand out visually.
 
