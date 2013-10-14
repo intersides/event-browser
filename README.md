@@ -45,7 +45,7 @@ One event may contain several of the above fields. For example the following eve
         id: "149923"
     visitor_id: "4F6B6D2E72F75AA7"
 
-Use the `getImage` global function to get an image thumbnail representing the product. This will be helpful to actually show the data, not just some meaningless IDs.
+Use the `getImage` global function to get an image thumbnail representing the product. This will be helpful to actually show the data, not just some meaningless IDs. Again, let's pretend you get the actual product metadata from a live service.
 
     > getImage(events[0].viewed_products[0].id)
     "http://89130063.r.cdn77.net/data/tovar/_m/149/m149923.jpg"
