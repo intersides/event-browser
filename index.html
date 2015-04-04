@@ -1,14 +1,36 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
 
-<title>Event Browser</title>
-<script type="text/javascript" src="js/events.js"></script>
-<script type="text/javascript" src="js/tools.js"></script>
+    <meta charset="UTF-8">
+
+    <title>Event Browser</title>
+
+    <link rel="stylesheet" href="bower_components/font-awesome/css/font-awesome.min.css">
+    <link rel="stylesheet" href="bower_components/jquery-ui/themes/smoothness/jquery-ui.min.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <script type="text/javascript" src="js/events.js"></script>
+    <script type="text/javascript" src="js/tools.js"></script>
+    <script src="bower_components/jquery/dist/jquery.min.js"></script>
+    <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+    <script src="js/main.js"></script>
+
+    <script type="text/javascript">
+        $(document).ready(function(){
+
+            var eventBrowser = new EventBrowser({
+                wsPort:5000,
+                httpPort:7777
+            });
+
+        });
+    </script>
+
 </head>
 
 <body>
+hello
 </body>
 </html>
 

@@ -1,4 +1,4 @@
-events = [{
+[{
     "viewed_products": [{"id": "149923"}],
     "timestamp": "20130820T100002Z",
     "impressions": [{
