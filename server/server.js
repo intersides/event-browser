@@ -1,6 +1,7 @@
 /**
  * Created by marco.falsitta on 04/04/15.
  */
+var dev = true;
 
 var colors = require('colors');
 var CircularJSON = require('circular-json');
@@ -52,8 +53,15 @@ wsServer.on('connection', function(ws){
 
         var eventArray;
 
+        var eventFile = null;
 
-        fs.readFile(__dirname+'/data/events.json', function (err, data) {
+        if(dev == true){
+            eventFile = __dirname+'/data/events_reduced.json';
+        }else{
+            eventFile = __dirname+'/data/events.json';
+        }
+
+        fs.readFile(eventFile, function (err, data) {
 
             if (err){
                 console.error(JSON.stringify(err));

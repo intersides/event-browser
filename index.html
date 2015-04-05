@@ -12,14 +12,18 @@
 
     <script type="text/javascript" src="js/events.js"></script>
     <script type="text/javascript" src="js/tools.js"></script>
+    <script src="bower_components/384583/object-watch.js"></script>
     <script src="bower_components/jquery/dist/jquery.min.js"></script>
     <script src="bower_components/jquery-ui/jquery-ui.min.js"></script>
+
+    <script src="js/entities/SREventElement.js"></script>
+    <script src="js/entities/EventManager.js"></script>
     <script src="js/main.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function(){
 
-            var eventBrowser = new EventBrowser({
+            new SREventBrowser({
                 wsPort:5000,
                 httpPort:7777
             });
@@ -30,7 +34,7 @@
 </head>
 
 <body>
-hello
+<div class="initWarning">This application was not initialized successfully!</div>
 </body>
 </html>
 

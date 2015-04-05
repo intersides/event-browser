@@ -2,7 +2,7 @@
  * Created by marco.falsitta on 04/04/15.
  */
 
-var EventBrowser = function(in_params){
+var SREventBrowser = function(in_params){
 
     this.params = $.extend({
         host:location.origin.replace(/^http/, 'ws'),
@@ -14,23 +14,26 @@ var EventBrowser = function(in_params){
 
     this.httpServer = location.origin+"/";
     this.wsServer = "ws://"+this.params.baseHost+":"+this.params.wsPort+"/";
-
     console.info(this.httpServer, this.wsServer);
-
-
     this.webSocket = null;
 
-
-
+    this.eventManager = null;
 
     this.init();
 
 };
-EventBrowser.prototype.init = function(){
-    console.log("EventBrowser initializing ...");
+SREventBrowser.prototype.init = function(){
+    console.log("SREventBrowser initializing ...");
+
+    this.$app = this.initAvatar();
+
+    this.buildInterfaceLayout();
+    this.bindDomEvents();
+
+    this.eventManager = new SREventManager({});
 
     this.requestService({
-        service:"A",
+        service:"onInit",
         data:{
          someData:"B"
         }
@@ -42,7 +45,49 @@ EventBrowser.prototype.init = function(){
 
     });
 };
-EventBrowser.prototype.requestService = function(in_requestedService){
+SREventBrowser.prototype.initAvatar = function(){
+    return $("body").attr('id', 'SREventBrowser').empty();
+};
+SREventBrowser.prototype.buildInterfaceLayout = function(){
+
+    var _this = this;
+
+    this.$wideEventView = $('<div id="wideEventView"/>');
+    this.$closerEventView = $('<div id="closerEventView"/>');
+
+    this.$app.append(
+        $("<section id='appLayout'/>")
+            .append(
+                $('<div class="eventPage"/>').append(
+                    this.$closerEventView,
+                    this.$wideEventView
+
+                )
+        )
+    );
+
+
+};
+
+SREventBrowser.prototype.bindDomEvents = function(){
+    var _this = this;
+
+    this.$app.on("onSREventAdded",function(evt){
+
+        var aSREventElement = new SREventElement(evt.addedSRElement);
+
+
+        _this.$closerEventView.append(
+            aSREventElement.getAvatars().bigBrother
+        );
+
+        _this.$wideEventView.append(
+            aSREventElement.getAvatars().littleBrother
+        );
+
+    });
+};
+SREventBrowser.prototype.requestService = function(in_requestedService){
 
     var service = 'default';
     if(typeof in_requestedService["service"] !== "undefined"){
@@ -68,7 +113,7 @@ EventBrowser.prototype.requestService = function(in_requestedService){
         }
     });
 };
-EventBrowser.prototype.connectToServer = function(in_params, connCallback){
+SREventBrowser.prototype.connectToServer = function(in_params, connCallback){
     var _this = this;
 
     //if host is not provided use the one in the app params (which at least its try to resolve to location.origin)
@@ -99,8 +144,7 @@ EventBrowser.prototype.connectToServer = function(in_params, connCallback){
                 break;
 
             case "onEventObjectReceived":{
-                var receivedEventObj = receivedMsg.msg.eventObj;
-                //console.info(receivedEventObj);
+                _this.eventManager.addSREvent(receivedMsg.msg.eventObj);
 
             }break;
 
@@ -120,7 +164,7 @@ EventBrowser.prototype.connectToServer = function(in_params, connCallback){
             case "onAllEventObjectsSent":
                 var totalEvents = receivedMsg.msg.totalEvents;
                 var msg = totalEvents+" events have been received";
-                alert(msg);
+                //alert(msg);
                 console.info(msg);
 
                 break;
@@ -139,7 +183,7 @@ EventBrowser.prototype.connectToServer = function(in_params, connCallback){
 
 };
 
-EventBrowser.prototype.bindSocketEvents = function(){
+SREventBrowser.prototype.bindSocketEvents = function(){
 
     this.webSocket.onclose = function (evt) {
         console.warn("closed connection");
@@ -149,7 +193,7 @@ EventBrowser.prototype.bindSocketEvents = function(){
     };
 
 };
-EventBrowser.prototype.openConnection = function(in_host){
+SREventBrowser.prototype.openConnection = function(in_host){
 
     var _this = this;
     this.webSocket = new WebSocket(this.wsServer);

@@ -9,5 +9,9 @@ module.exports = function(httpApp){
         res.send({response:"AA"});
     });
 
+    httpApp.post('/onInit', function(req, res){
+        console.log('got onInit request but I do not know what to do with this at the moment');
+        res.send({response:"onInitResponse"});
+    });
 
 };
