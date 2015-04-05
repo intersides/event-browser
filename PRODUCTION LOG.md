@@ -11,11 +11,17 @@ The event objects are sent asynchronously using a web-socket. At this very momen
 **The current web-socket server is still at his basic development level.**
 
 
-### TODO LIST
+
+### WISH LIST
 
 * `linked-list`: build a linked in system that keep tracks of pagination.
-* `filtering` filter results.
-* `searching` searching for users.
+* `filtering`: filter results.
+* `searching`: searching for users.
+
+
+### TODO LIST
+
+* `optimizing`: pagination or loading and dumping assets based on `in-view` visibility .
 
 ### THE SERVER
 
@@ -28,5 +34,12 @@ The server is a node.js server. It is split into a http server and a web-socket 
 
 **Read the console of the node.js server. Http server responds to port 7777, ws-socket server to port 5000**.
 
-more to come...
+### CLASSES 
+JS function describing object are in js/entities.
+
+* `EventManager.js`:  keep tracks of event stream and current event. Watches on event array changes and emits DOM events for drawing items. It should also implement lower level data-management such linked-list (still in wish list)
+* `SREventElement.js`: wrapper to build jQuery "avatars" to display event content.
+
+## TOOLS
+Added `srTimeStampToDate` to convert timestamp into data object and/or jquery element.
 
