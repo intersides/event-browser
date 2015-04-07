@@ -48,42 +48,580 @@ SREventBrowser.prototype.init = function(){
 SREventBrowser.prototype.initAvatar = function(){
     return $("body").attr('id', 'SREventBrowser').empty();
 };
+
+//redrawDetailedElements
+SREventBrowser.prototype.redrawDetailedElements = function(inBufferElements){
+
+    this.$closerEventView.empty();
+    for(var elemIdx = 0; elemIdx < inBufferElements.length; elemIdx++){
+        var $a = this.createDetailAvatar(inBufferElements[elemIdx]);
+        //console.log($a);
+        this.$closerEventView.append($a);
+    }
+
+
+};
+SREventBrowser.prototype.createDetailAvatar = function(elemObj){
+
+    //console.log(this.params);
+
+    var $SREventElementExtended = $("<div class='SREventElementExtended'/>");
+
+    if(typeof elemObj.visitor_id !== "undefined"){
+
+        var visitorId =elemObj.visitor_id;
+        var timestamp =elemObj.timestamp;
+        var impressionsArray =elemObj.impressions;
+
+        var viewedProductsArray = elemObj.viewed_products;
+
+
+        //VIEWED PRODUCTS
+        var $viewProductsGrp = $("<div class='viewProductsGrp'/>");
+
+        if(typeof viewedProductsArray != "undefined"){
+
+            if(viewedProductsArray.length){
+
+                for(var productIdx = 0; productIdx < viewedProductsArray.length; productIdx++){
+                    var prodId = viewedProductsArray[productIdx].id;
+
+                    var imgLink = getImageLink(prodId);
+                    //$('<div class="productImage"/>').data('imgLink', null).appendTo($viewProductsGrp);
+
+                    $('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($viewProductsGrp);
+
+
+                }
+            }
+
+        }
+        else{
+            console.warn('no items where found');
+        }
+
+        //RELATED
+
+
+        var $impressionGrp = $("<div class='impressionGrp'/>")
+
+
+        for(var idx in impressionsArray){
+
+            var impressionObj = impressionsArray[idx];
+            var featureId = impressionObj.feature_id;
+
+            var $impressionObject = $("<div class='impressionObject'/>")
+
+            $impressionGrp.append(
+                $impressionObject
+            );
+
+            $impressionObject.append(
+                $('<div/>').text(featureId)
+            );
+
+            var items = impressionObj.item_impressions;
+            if(items.length){
+
+                var $impressionItemsGrp =
+                    $("<div class='itemsGrp'/>").appendTo($impressionObject);
+
+
+                for(var itemIdx = 0; itemIdx < items.length; itemIdx++){
+                    var itemId = items[itemIdx];
+
+                    var imgLink = getImageLink(itemId);
+
+                    //console.log(itemId, imgLink);
+                    //$('<div class="productImage"/>').data('imgLink', null).appendTo($impressionItemsGrp);
+
+                    $('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($impressionItemsGrp);
+
+
+                }
+            }
+            else{
+                console.warn('no items where found');
+            }
+
+        }
+
+        //process time stamp
+        var date = srTimeStampToDate({srTimestamp:timestamp, format:"jquery"});
+        //var date = timestamp;
+
+
+         $SREventElementExtended.append(
+             $('<div class="inlineInfo"/>').append(
+             $('<span class="visitorId"/>').text(visitorId),
+             $('<span class="timestamp"/>').html(date)
+             ),
+             $viewProductsGrp,
+             $impressionGrp
+
+         ).attr('id', visitorId);
+
+
+    }
+
+
+    return $SREventElementExtended;
+
+};
+SREventBrowser.prototype.createIndividualVisitorAvatar = function(visitorId, elemObj){
+
+    var _this = this;
+
+    //console.log(elemObj);
+
+    var $SRIndividualVisitorElement = $("<div class='SRIndividualVisitorElement'/>");
+
+    var visitorId =visitorId;
+    var timestamps =elemObj.timestamps;
+
+
+    var $visitorId = $('<div class="visitorId"/>').text(visitorId).appendTo($SRIndividualVisitorElement);
+    var $historyContainer = $('<div class="historyContainer"/>').appendTo($SRIndividualVisitorElement);
+
+
+    return $SRIndividualVisitorElement;
+
+
+    for(var timeStampId in timestamps){
+
+        var historyBox = timestamps[timeStampId];
+
+        //historyItems
+        var $historyItem = $('<fieldset class="historyItem"/>');
+        //$historyContainer.append($historyItem);
+
+        var $random = $('<legend class="random" align="right" />').text(historyBox.random);
+        $historyItem.append($random);
+
+        var $timeStampAsDate = srTimeStampToDate({srTimestamp:timeStampId, format:"jquery"});
+
+        var $timestamp = $('<div class="timeStamp" />').html($timeStampAsDate);
+        $historyItem.append($timestamp);
+
+        var $productsGrp = $('<div class="productsGrp"/>');
+        $historyItem.append($productsGrp);
+
+
+        var viewed_productsArray = historyBox['viewed_products'];
+
+        if(typeof viewed_productsArray != "undefined"){
+
+            for(var i = 0; i < viewed_productsArray.length; i++){
+                var product = viewed_productsArray[i];
+                $productsGrp.append(
+                    $('<div class="product"/>').text(product.id)
+                );
+
+            }
+
+        }
+
+        var impressions = historyBox['impressions'];
+        //console.log(impressions);
+
+        if(typeof impressions != "undefined"){
+
+            var $impressionsGrp = $('<div class="impressionsGrp"/>');
+            $productsGrp.append(
+                $impressionsGrp
+            );
+
+            for(var i = 0; i < impressions.length; i++){
+
+                var impression = impressions[i];
+
+                if(impression.feature_id !== "undefined"){
+                    $impressionsGrp.append(
+                        $('<div class="product"/>').text(impression.feature_id)
+                    );
+
+                }
+
+                var item_impressions = impression.item_impressions;
+
+                if(item_impressions !== "undefined"){
+
+                    var $item_impressions = $('<div class="impressions"/>')
+
+                    $impressionsGrp.append($item_impressions);
+
+                    for(var ipIdx = 0; ipIdx < item_impressions.length; ipIdx++){
+
+                        $item_impressions.append(
+                            $('<span class="impressionItem"/>').text(item_impressions[ipIdx])
+                        )
+
+                    }
+
+                }
+
+
+
+
+
+            }
+
+        }
+
+        var cart = historyBox['cart'];
+
+        if(typeof cart != "undefined"){
+
+            for(var ci = 0; ci < cart.length; ci++){
+                var cartItem = cart[ci];
+                $productsGrp.append(
+                    $('<div class="cartItem"/>').text(cartItem.id)
+                );
+
+            }
+
+
+        }
+
+        //if cart, more likely there are added products
+        var added_products = historyBox['added_products'];
+
+        if(typeof added_products != "undefined"){
+
+            //console.log(historyBox);
+
+            for(var api = 0; api < added_products.length; api++){
+
+                var productInCart = added_products[api];
+
+
+                //f, id, q, p
+                if(typeof productInCart.f == "undefined"){
+                    productInCart.f = null;
+                    //console.log(productInCart);
+
+                }
+
+
+                $productsGrp.append(
+                    $('<div class="productInCart"/>').append(
+
+                        $('<div class="f"/>').text(productInCart.f),
+                        $('<div class="id"/>').text(productInCart.id),
+                        $('<div class="quantity"/>').text(productInCart.q),
+                        $('<div class="price"/>').text(productInCart.p)
+
+                    )
+                );
+
+            }
+
+        }
+
+    }
+
+
+
+};
+
+SREventBrowser.prototype.buildSearchTool = function(){
+
+    var _this = this;
+
+    var $st = $('<div class="searchTool"/>').append(
+        $('<label for="filter"/>').text('filter:'),
+        $('<input id="filter" type="text" placeholder="search..."/>').on('keyup', function(event){
+            var val = $(this).val();
+            var findings = _this.eventManager.filterFor(val);
+            if(findings){
+
+                if(findings.length > 0){
+
+                    //console.log(findings);
+                    //_this.eventManager.filteredResult = true;
+
+                    _this.$wideEventView.empty();
+
+
+                    for(var evtIdx = 0; evtIdx < findings.length; evtIdx++){
+                        var evtObj = findings[evtIdx];
+                        var aSREventElement = new SREventElement(evtObj);
+
+                        var littleBrother = aSREventElement.getAvatars().littleBrother;
+
+                        //visitorId
+                        _this.$wideEventView.append(
+                            aSREventElement.getAvatars().littleBrother
+                        );
+
+                    }
+
+                    _this.buildViewNavigator();
+                    _this.bufferControl();
+
+                }
+                else if(findings.length == 0){
+                    //search string lenght was ok but no maching results
+                    //_this.eventManager.filteredResult = false;
+
+                    _this.eventManager.buildEventUI(function(){
+
+                        _this.bufferControl();
+
+                    });
+
+                }
+
+            }
+
+        })
+    );
+
+    return $st;
+
+};
+
+SREventBrowser.prototype.buildViewNavigator = function(){
+
+    var _this = this;
+
+    this.$smallViewBuffer = $('<div id="smallViewBuffer"/>');
+    this.$wideEventView.append(this.$smallViewBuffer);
+
+    this.$smallViewBuffer.draggable({
+        containment: "parent",
+        stop: function( event, ui ){
+            _this.bufferControl();
+        }
+
+    });
+
+    this.adjustMiniNavigatorSize();
+
+
+};
 SREventBrowser.prototype.buildInterfaceLayout = function(){
 
     var _this = this;
 
-    this.$wideEventView = $('<div id="wideEventView"/>');
     this.$closerEventView = $('<div id="closerEventView"/>');
+    this.$wideEventView = $('<div id="wideEventView"/>');
+
+    this.$individualParticipantStreamView = $('<div id="individualParticipantStreamView"/>');
+
+    this.$searchTool = this.buildSearchTool();
 
     this.$app.append(
         $("<section id='appLayout'/>")
             .append(
                 $('<div class="eventPage"/>').append(
+                    $('<div class="utilityBar"/>').append(
+                        this.$searchTool
+                    ),
                     this.$closerEventView,
+                    this.$individualParticipantStreamView,
                     this.$wideEventView
 
                 )
         )
     );
 
+    //add buffer for full item allocation and deallocation (wrong term for sure)
+    this.buildViewNavigator();
+
+    this.$creationBuffer = $('<div id="creationBuffer"/>');
+    this.$closerEventView.append(this.$creationBuffer);
+
+    var bufferOffset = this.$creationBuffer.offset();
+    var bufferTop = bufferOffset.top;
+    var bufferBottom = bufferTop+this.$creationBuffer.outerHeight();
+
+
+    //console.log(bufferTop, bufferBottom);
+
+    /*
+    var bufferControl = function(){
+
+        $('.SREventElementExtended').each(function(){
+            var markers = $(this).data().markers;
+            var $topMarker = markers.top;
+            var $bottomMarker = markers.bottom;
+
+            var topMarkerOffsetTop = $topMarker.offset().top;
+            var bottomMarkerOffsetTop = $bottomMarker.offset().top;
+
+
+            //if($(this).hasClass('74194BC0B3C42057')){
+            //    console.log(bufferTop, bufferBottom, $topMarker.offset().top, $bottomMarker.offset().top);
+            //}
+
+            if(
+                topMarkerOffsetTop < bufferTop
+                &&
+                bottomMarkerOffsetTop < bufferTop
+            ){
+                $topMarker.trigger({
+                    type:"onOutOfBuffer"
+                });
+            }
+
+            if(
+                topMarkerOffsetTop > bufferTop
+                &&
+                bottomMarkerOffsetTop < bufferBottom
+
+            ){
+                $topMarker.trigger({
+                    type:"onInOfBuffer"
+                });
+            }
+
+
+
+
+        });
+
+
+
+    };
+    */
+    //this.$closerEventView.on('scroll', function(){
+    //    bufferControl();
+    //    var _$this = $(this);
+    //
+    //    console.log(_$this.offset().top);
+    //
+    //
+    //
+    //});
+
+
+};
+SREventBrowser.prototype.adjustMiniNavigatorSize = function() {
+
+    //assign size to smallView buffer based on window visible size
+    var w = this.$closerEventView.outerWidth();
+    var h = this.$closerEventView.outerHeight();
+
+    //this.$smallViewBuffer.css({position:"absolute"});
+
+    //current smallView
+    var smallViewW = this.$wideEventView.outerWidth();
+    var smallViewOffset = this.$wideEventView.offset();
+    //console.log(smallViewOffset);
+
+    this.$smallViewBuffer.css({
+        height:smallViewW*(h/w)+"px",
+        width:smallViewW,
+        top:smallViewOffset.top,
+        left:smallViewOffset.left
+    });
+
+    //this.$smallViewBuffer.css({position:"fixed"});
 
 };
 
+SREventBrowser.prototype.bufferControl = function() {
+
+
+    var smallViewTop = this.$smallViewBuffer.offset().top;
+    var smallViewH = smallViewTop+this.$smallViewBuffer.outerHeight();
+
+
+    var inBufferElements = [];
+
+    $('.SREventElement').each(function(){
+
+        var _$SREventElement = $(this);
+
+        var topMarkerOffsetTop = _$SREventElement.offset().top;
+
+        //if($(this).is('#53950BF0AAA8AEC0')){
+        //    console.log(topMarkerOffsetTop, smallViewH);
+        //}
+
+        if(
+            topMarkerOffsetTop < smallViewH
+            &&
+            topMarkerOffsetTop > smallViewTop
+        ){
+
+            inBufferElements.push(_$SREventElement.data().eventObj);
+
+            _$SREventElement.trigger({
+                type:"onInView"
+            });
+        }
+        else{
+            _$SREventElement.trigger({
+                type:"onOutView"
+            });
+        }
+
+
+    });
+
+    this.redrawDetailedElements(inBufferElements);
+
+
+
+    //get the first element of the list.
+    //var $firstElement = $('.SREventElement.IN').first().data('twin');
+    //
+    //
+    //var elementPosition = $firstElement.offset().top;
+    //
+    //var goto = this.$closerEventView.offset().top - elementPosition;
+    //
+    //var _this = this;
+    //
+    //this.$closerEventView.stop().animate({
+    //    top: goto
+    //}, 500, function(){
+    //    console.info($firstElement.attr('id'));
+    //});
+
+};
 SREventBrowser.prototype.bindDomEvents = function(){
     var _this = this;
 
-    this.$app.on("onSREventAdded",function(evt){
+    window.onresize = function(){
+        _this.adjustMiniNavigatorSize();
+    };
 
-        var aSREventElement = new SREventElement(evt.addedSRElement);
+
+    //THANKS TO : http://stackoverflow.com/questions/9144560/jquery-scroll-detect-when-user-stops-scrolling
+    this.$wideEventView.on('scroll', function() {
+        clearTimeout($.data(this, 'scrollTimer'));
+        $.data(this, 'scrollTimer', setTimeout(function() {
+            // do something
+            _this.bufferControl();
+        }, 100));
+    });
 
 
-        _this.$closerEventView.append(
-            aSREventElement.getAvatars().bigBrother
+    this.$app.on("onPreparedToReceive",function(evt){
+        _this.webSocket.send(
+            JSON.stringify({clientEvent:'onReadyToReceive', data:null})
         );
+    });
+
+
+    this.$app.on("onBuildEventAvatar",function(evt){
+
+        var evtObj = evt.eventObj;
+
+        var aSREventElement = new SREventElement(evtObj);
 
         _this.$wideEventView.append(
             aSREventElement.getAvatars().littleBrother
         );
+
+        //_this.$closerEventView.append(
+            //aSREventElement.getAvatars().bigBrother
+        //);
+        //
 
     });
 };
@@ -143,6 +681,13 @@ SREventBrowser.prototype.connectToServer = function(in_params, connCallback){
 
                 break;
 
+            case "onPrepareToSendAllEvents":{
+                console.log("onPrepareToSendAllEvents");
+                _this.eventManager.prepareReceivingEvent(receivedMsg.msg.totalEvents);
+
+            }break;
+
+
             case "onEventObjectReceived":{
                 _this.eventManager.addSREvent(receivedMsg.msg.eventObj);
 
@@ -164,8 +709,27 @@ SREventBrowser.prototype.connectToServer = function(in_params, connCallback){
             case "onAllEventObjectsSent":
                 var totalEvents = receivedMsg.msg.totalEvents;
                 var msg = totalEvents+" events have been received";
-                //alert(msg);
                 console.info(msg);
+                _this.eventManager.buildEventUI(function(){
+
+                    _this.bufferControl();
+
+                });
+
+
+                //console.log("individualVisitors:");
+                //console.log(_this.eventManager.individualVisitors);
+                var totalIndividualVisitors = 0;
+                for(var visitorId in _this.eventManager.individualVisitors){
+
+                    var $avt = _this.createIndividualVisitorAvatar(visitorId, _this.eventManager.individualVisitors[visitorId]);
+
+                    _this.$individualParticipantStreamView.append($avt);
+
+                    totalIndividualVisitors++;
+
+                }
+                console.log("totalIndividualVisitors", totalIndividualVisitors);
 
                 break;
 
@@ -202,9 +766,9 @@ SREventBrowser.prototype.openConnection = function(in_host){
 
         console.log("opened");
 
-        _this.webSocket.send({
-            msg: "respond to first connection"
-        });
+        _this.webSocket.send(
+            JSON.stringify({clientEvent:'onOpen', data:null})
+        );
 
     };
 

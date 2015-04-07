@@ -17,17 +17,32 @@ body .initWarning {
 
 #SREventManager {
   display: inline-block;
-  border: 1px solid green;
-  background-color: orangered;
   font-size: 10px;
-  color: orange;
   padding: 2px; }
-  #SREventManager:before {
-    content: "Entity:";
+  #SREventManager .loaderGroup > * {
     display: inline-block; }
-  #SREventManager:after {
-    content: "SREventManager";
-    display: inline-block; }
+  #SREventManager .loaderGroup .textualInfo {
+    color: black;
+    padding: 4px; }
+    #SREventManager .loaderGroup .textualInfo .loadedItemsLbl {
+      margin-right: 4px; }
+      #SREventManager .loaderGroup .textualInfo .loadedItemsLbl:before {
+        content: 'loading...';
+        display: inline-block;
+        padding: 4px; }
+      #SREventManager .loaderGroup .textualInfo .loadedItemsLbl:after {
+        content: 'of';
+        display: inline-block;
+        padding: 4px; }
+  #SREventManager .loaderGroup .loadingBar {
+    background-color: white;
+    border: 1px solid green;
+    height: 20px;
+    width: 100px; }
+    #SREventManager .loaderGroup .loadingBar .incrementalIndicator {
+      background-color: lawngreen;
+      width: 1%;
+      height: 18px; }
 
 #appLayout {
   position: absolute;
@@ -42,17 +57,33 @@ body .initWarning {
     right: 0;
     bottom: 0;
     border: 1px solid blue; }
+    #appLayout .eventPage .utilityBar {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background-color: rgba(0, 120, 174, 0.34); }
+      #appLayout .eventPage .utilityBar .searchTool {
+        position: absolute;
+        right: 0;
+        padding: 4px; }
+    #appLayout .eventPage #individualParticipantStreamView,
     #appLayout .eventPage #closerEventView,
     #appLayout .eventPage #wideEventView {
       position: absolute;
-      top: 0;
+      top: 30px;
       bottom: 0;
       border: 1px solid;
       overflow-y: auto; }
     #appLayout .eventPage #closerEventView {
       left: 0;
       border-color: green;
-      width: 80%; }
+      width: 50%; }
+    #appLayout .eventPage #individualParticipantStreamView {
+      right: 20%;
+      width: 30%;
+      border-color: blue; }
     #appLayout .eventPage #wideEventView {
       right: 0;
       width: 20%;
@@ -70,11 +101,47 @@ body .initWarning {
       display: table-cell;
       vertical-align: top; }
 
+.SRIndividualVisitorElement {
+  position: relative;
+  z-index: 1;
+  border: 1px solid blue;
+  margin: 10px;
+  padding: 7px;
+  border-radius: 10px; }
+  .SRIndividualVisitorElement .visitorId {
+    font-weight: bold; }
+  .SRIndividualVisitorElement .historyContainer {
+    margin: 2px;
+    border: 1px solid limegreen; }
+    .SRIndividualVisitorElement .historyContainer fieldset.historyItem {
+      border: 1px solid darkgray;
+      padding: 2px; }
+      .SRIndividualVisitorElement .historyContainer fieldset.historyItem legend.random {
+        font-size: smaller;
+        color: darkgray; }
+    .SRIndividualVisitorElement .historyContainer .productsGrp {
+      background-color: lightblue; }
+      .SRIndividualVisitorElement .historyContainer .productsGrp .impressionsGrp .impressions span.impressionItem {
+        display: inline-block;
+        padding: 2px; }
+      .SRIndividualVisitorElement .historyContainer .productsGrp .cartItem {
+        color: green; }
+      .SRIndividualVisitorElement .historyContainer .productsGrp .productInCart {
+        border: 1px solid orange; }
+        .SRIndividualVisitorElement .historyContainer .productsGrp .productInCart > * {
+          text-decoration: underline; }
+          .SRIndividualVisitorElement .historyContainer .productsGrp .productInCart > *.f {
+            color: lawngreen; }
+
 .SREventElementExtended {
+  position: relative;
+  z-index: 1;
   border: 1px solid red;
   margin: 10px;
   padding: 7px;
   border-radius: 10px; }
+  .SREventElementExtended.out {
+    background-color: red; }
   .SREventElementExtended .viewProductsGrp > .productImage {
     display: inline-block;
     width: 80px;
@@ -97,32 +164,56 @@ body .initWarning {
     border: 1px solid rgba(0, 0, 0, 0.4);
     vertical-align: middle;
     box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.63); }
+  .SREventElementExtended .bottomMarker,
+  .SREventElementExtended .topMarker {
+    position: absolute;
+    left: 0;
+    border: 1px solid; }
+  .SREventElementExtended .topMarker {
+    top: 0;
+    border-color: green; }
+  .SREventElementExtended .bottomMarker {
+    bottom: 0;
+    border-color: red; }
 
 .SREventElement {
+  position: relative;
+  z-index: 1;
   padding: 2px;
-  font-size: 10px; }
+  font-size: 10px;
+  background-color: rgba(255, 255, 0, 0.2);
+  margin: 1px; }
+  .SREventElement.IN {
+    font-weight: bold; }
   .SREventElement .inlineInfo > * {
     display: inline-block;
-    padding-left: 2px;
-    padding-right: 2px; }
-    .SREventElement .inlineInfo > *.visitorId {
-      font-weight: bold; }
-    .SREventElement .inlineInfo > *.timestamp .srDate {
-      text-decoration: underline; }
-      .SREventElement .inlineInfo > *.timestamp .srDate > .date {
-        display: inline-block; }
-        .SREventElement .inlineInfo > *.timestamp .srDate > .date > span:after {
-          content: "/";
-          color: gray; }
-        .SREventElement .inlineInfo > *.timestamp .srDate > .date > span:last-child:after {
-          content: "";
-          padding-right: 4px; }
-      .SREventElement .inlineInfo > *.timestamp .srDate > .time {
-        display: inline-block; }
-        .SREventElement .inlineInfo > *.timestamp .srDate > .time > span:after {
-          content: ":";
-          color: gray; }
-        .SREventElement .inlineInfo > *.timestamp .srDate > .time > span:last-child:after {
-          content: ""; }
+    padding-left: 1px;
+    padding-right: 1px; }
+
+.timeStamp .srDate {
+  text-decoration: underline; }
+  .timeStamp .srDate > .date {
+    display: inline-block; }
+    .timeStamp .srDate > .date > span:after {
+      content: "/";
+      color: gray; }
+    .timeStamp .srDate > .date > span:last-child:after {
+      content: "";
+      padding-right: 2px; }
+  .timeStamp .srDate > .time {
+    display: inline-block; }
+    .timeStamp .srDate > .time > span:after {
+      content: ":";
+      color: gray; }
+    .timeStamp .srDate > .time > span:last-child:after {
+      content: ""; }
+
+#smallViewBuffer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 100%;
+  background-color: rgba(0, 62, 255, 0.52);
+  z-index: 2; }
 
 /*# sourceMappingURL=main.css.map */

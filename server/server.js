@@ -1,7 +1,8 @@
 /**
  * Created by marco.falsitta on 04/04/15.
  */
-var dev = true;
+var dev = false;
+var maxEvent = 500;
 
 var colors = require('colors');
 var CircularJSON = require('circular-json');
@@ -13,6 +14,8 @@ var fs = require('fs');
 
 var publicPort = 7777;//PUBLIC PORT
 var channelledPort = process.env['PORT'] || 5000; //WS DEFAULT PORT
+
+var eventArray = [];
 
 
 var app = express();
@@ -51,15 +54,86 @@ wsServer.on('connection', function(ws){
     ws.on('message', function message(data, flags) {
         console.log('message received '.magenta);
 
-        var eventArray;
+        //console.log(CircularJSON.parse(data));
+        var clientMessage = JSON.parse(data);
+        console.log('received: %j', JSON.parse(data));
 
-        var eventFile = null;
+        var clientEvent = clientMessage.clientEvent;
+        var clientData = clientMessage.data;
 
-        if(dev == true){
-            eventFile = __dirname+'/data/events_reduced.json';
-        }else{
-            eventFile = __dirname+'/data/events.json';
+
+        switch(clientEvent){
+
+            case "onOpen":{
+                console.log('onOpen received');
+
+                var eventFile = null;
+                eventFile = __dirname+'/data/events.json';
+
+                fs.readFile(eventFile, function (err, data) {
+
+                    if (err){
+                        console.error(JSON.stringify(err));
+                    }
+
+
+                    eventArray = JSON.parse(data);
+                    console.log('event array filled'.green);
+
+                    var eventsCounter = eventArray.length;
+                    var eventsToSend = eventsCounter;
+
+                    ws.send(CircularJSON.stringify({msgType:"onPrepareToSendAllEvents", msg:{totalEvents:eventsToSend}}));
+
+
+
+                });
+
+
+
+            }break;
+
+            case "onReadyToReceive":{
+                console.log('onOpen onReadyToReceive');
+
+                var eventsCounter = eventArray.length;
+                var eventsToSend = eventsCounter;
+
+                if(dev == true) {
+                    //override the total events to be sent
+                    if (maxEvent > eventsCounter) {
+                        maxEvent = eventsCounter;
+                    }
+
+                    eventsToSend = maxEvent;
+
+                }
+
+                for(var idx = 0; idx < eventsToSend; idx++){
+                    var eventObj = eventArray[idx];
+                    ws.send(CircularJSON.stringify({msgType:"onEventObjectReceived", msg:{eventObj:eventObj}}));
+                }
+
+                setTimeout(function timeout() {
+                    ws.send(CircularJSON.stringify({msgType:"onAllEventObjectsSent", msg:{totalEvents:eventsToSend}}));
+                    console.log("all event objects have been sent !".yellow);
+                }, 500);
+
+
+
+
+            }break;
+
+
+            default:{
+                console.log('un handle client event type'.red);
+
+
+            }break;
         }
+
+        /*
+
 
         fs.readFile(eventFile, function (err, data) {
 
@@ -69,25 +143,42 @@ wsServer.on('connection', function(ws){
 
             eventArray = JSON.parse(data);
             var eventsCounter = eventArray.length;
-            eventArray.forEach(function(eventObj){
+            var eventsToSend = eventsCounter;
 
-                ws.send(CircularJSON.stringify({msgType:"onEventObjectReceived", msg:{eventObj:eventObj}}));
+            ws.send(CircularJSON.stringify({msgType:"onPrepareToSendAllEvents", msg:{totalEvents:eventsToSend}}));
 
-                if(--eventsCounter === 0){
 
-                    setTimeout(function timeout() {
-                        ws.send(CircularJSON.stringify({msgType:"onAllEventObjectsSent", msg:{totalEvents:eventArray.length}}));
-                        console.log("all event objects have been sent !".yellow);
-                    }, 500);
+
+
+
+            if(dev == true) {
+                //override the total events to be sent
+                if (maxEvent > eventsCounter) {
+                    maxEvent = eventsCounter;
                 }
 
-            });
+                eventsToSend = maxEvent;
+
+                //eventFile = __dirname + '/data/events_reduced.json';
+            }
+
+            for(var idx = 0; idx < eventsToSend; idx++){
+                var eventObj = eventArray[idx];
+                ws.send(CircularJSON.stringify({msgType:"onEventObjectReceived", msg:{eventObj:eventObj}}));
+            }
+
+            setTimeout(function timeout() {
+                ws.send(CircularJSON.stringify({msgType:"onAllEventObjectsSent", msg:{totalEvents:eventsToSend}}));
+                console.log("all event objects have been sent !".yellow);
+            }, 500);
+
+
 
 
 
 
         });
-
+        */
 
 
 

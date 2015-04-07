@@ -25,22 +25,73 @@ body{
 
 #SREventManager{
   display: inline-block;
-  border: 1px solid green;
-  background-color: orangered;
+//  border: 1px solid green;
+//  background-color: orangered;
 
   font-size: 10px;
-  color:orange;
+//  color:orange;
   padding: 2px;
 
-  &:before{
-    content: "Entity:";
-    display: inline-block;
+//  &:before{
+//    content: "Entity:";
+//    display: inline-block;
+//
+//  }
+//  &:after{
+//    content: "SREventManager";
+//    display: inline-block;
+//  }
+
+
+  .loaderGroup{
+
+    >*{
+      display: inline-block;
+
+    }
+
+    .textualInfo{
+      color:black;
+      padding: 4px;
+
+      .loadedItemsLbl{
+        &:before{
+          content: 'loading...';
+          display: inline-block;
+          padding: 4px;
+
+        }
+        &:after{
+          content: 'of';
+          display: inline-block;
+          padding: 4px;
+        }
+
+        margin-right: 4px;
+      }
+      .totalItemsLbl{
+
+      }
+    }
+
+    .loadingBar{
+
+      background-color:white;
+
+      border: 1px solid green;
+      height: 20px;
+
+      width: 100px;
+      .incrementalIndicator{
+        background-color:lawngreen;
+        width: 1%;
+        height: 18px;
+
+      }
+    }
 
   }
-  &:after{
-    content: "SREventManager";
-    display: inline-block;
-  }
+
 
 }
 
@@ -59,10 +110,26 @@ body{
     bottom: 0;
     border: 1px solid blue;
 
+    .utilityBar{
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 30px;
+      background-color: rgba(0, 120, 174, 0.34);
+
+      .searchTool{
+        position: absolute;
+        right: 0;
+        padding: 4px;
+      }
+    }
+
+    #individualParticipantStreamView,
     #closerEventView,
     #wideEventView{
       position: absolute;
-      top: 0;
+      top: 30px;
       bottom: 0;
       border: 1px solid;
       overflow-y: auto;
@@ -71,7 +138,12 @@ body{
     #closerEventView{
       left: 0;
       border-color:green;
-      width:80%;
+      width:50%;
+    }
+    #individualParticipantStreamView{
+      right: 20%;
+      width: 30%;
+      border-color:blue;
     }
     #wideEventView{
       right: 0;
@@ -79,7 +151,6 @@ body{
       background-color: lightyellow;
       border-color:darkolivegreen;
     }
-
 
   }
 
@@ -102,13 +173,76 @@ body{
 }
 
 
+.SRIndividualVisitorElement{
+  position: relative;
+  z-index: 1;
+  border: 1px solid blue;
+  margin: 10px;
+  padding: 7px;
+  border-radius: 10px;
+
+  .visitorId{
+    font-weight: bold;
+  }
+
+  .historyContainer{
+    margin: 2px;
+    border: 1px solid limegreen;
+
+    fieldset.historyItem{
+      border: 1px solid darkgray;
+      padding: 2px;
+      legend.random{
+        font-size: smaller;
+        color: darkgray;
+      }
+    }
+
+
+
+    .productsGrp{
+      background-color: lightblue;
+
+      .impressionsGrp{
+        .impressions{
+          span.impressionItem{
+            display: inline-block;
+            padding: 2px;
+          }
+        }
+      }
+
+      .cartItem{
+        color:green;
+      }
+
+      .productInCart{
+        border: 1px solid orange;
+        >*{
+          text-decoration: underline;
+          &.f{
+            color: lawngreen;
+          }
+        }
+      }
+    }
+
+  }
+
+}
+
 
 .SREventElementExtended{
+  position: relative;
+  z-index: 1;
   border: 1px solid red;
   margin: 10px;
   padding: 7px;
   border-radius: 10px;
 
+  &.out{
+    background-color: red;
+  }
 
   .viewProductsGrp{
     >.productImage{
@@ -141,52 +275,79 @@ body{
 //      height: 140px;
     }
   }
+
+  .bottomMarker,
+  .topMarker{
+    position: absolute;
+    left: 0;
+    border: 1px solid;
+  }
+  .topMarker{
+    top: 0;
+    border-color: green;
+  }
+  .bottomMarker{
+    bottom: 0;
+    border-color: red;
+  }
 }
 
 .SREventElement{
+  position: relative;
+  z-index: 1;
   padding: 2px;
   font-size: 10px;
+  background-color: rgba(255, 255, 0, 0.20);
+  margin: 1px;
+
+  &.IN{
+    font-weight: bold;
+  }
+
   .inlineInfo{
     >*{
       display: inline-block;
-      padding-left: 2px;
-      padding-right: 2px;
+      padding-left: 1px;
+      padding-right: 1px;
       &.visitorId{
-        font-weight: bold;
+//        font-weight: bold;
+//        text-decoration: underline;
       }
-      &.timestamp{
-        .srDate{
-          text-decoration: underline;
-          >.date{
-            display: inline-block;
-            >span{
-              &:after{
-                content: "/";
-                color:gray;
-              }
-              &:last-child{
-                &:after{
-                  content: "";
-                  padding-right: 4px;
-                }
-              }
-            }
 
+    }
+  }
+}
 
+.timeStamp{
+  .srDate{
+    text-decoration: underline;
+    >.date{
+      display: inline-block;
+      >span{
+        &:after{
+          content: "/";
+          color:gray;
+        }
+        &:last-child{
+          &:after{
+            content: "";
+            padding-right: 2px;
           }
-          >.time{
-            display: inline-block;
-            >span{
-              &:after{
-                content: ":";
-                color:gray;
-              }
-              &:last-child{
-                &:after{
-                  content: "";
-                }
-              }
-            }
+        }
+      }
+
+
+    }
+    >.time{
+      display: inline-block;
+      >span{
+        &:after{
+          content: ":";
+          color:gray;
+        }
+        &:last-child{
+          &:after{
+            content: "";
           }
         }
       }
@@ -194,3 +355,21 @@ body{
   }
 }
 
+//#creationBuffer{
+//  position: fixed;
+//  top: 100px;
+//  bottom: 100px;
+//  width: 100%;
+//  border: 2px dashed red;
+//  z-index: 0;
+//}
+
+#smallViewBuffer{
+  position: fixed;
+  top:0;
+  right: 0;
+  width: 100%;
+  background-color: rgba(0, 62, 255, 0.52);
+  z-index: 2;
+
+}

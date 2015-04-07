@@ -12,14 +12,19 @@ var SREventElement = function(in_params){
 SREventElement.prototype.init = function(){
 
     this.createAvatars();
+    this.bindDomEvents();
 
 };
+
 SREventElement.prototype.createAvatars = function(){
 
     //console.log(this.params);
 
     this.$SREventElement = $("<div class='SREventElement minified'/>");
-    this.$SREventElementExtended = $("<div class='SREventElementExtended'/>");
+    this.$SREventElement.data().eventObj = this.params;
+
+    //this.$SREventElementExtended = $("<div class='SREventElementExtended out'/>");
+
 
     if(typeof this.params.visitor_id !== "undefined"){
 
@@ -33,28 +38,32 @@ SREventElement.prototype.createAvatars = function(){
         //VIEWED PRODUCTS
         var $viewProductsGrp = $("<div class='viewProductsGrp'/>");
 
-        if(viewedProductsArray.length){
+        if(typeof viewedProductsArray != "undefined"){
 
-            for(var productIdx = 0; productIdx < viewedProductsArray.length; productIdx++){
-                var prodId = viewedProductsArray[productIdx].id;
+            if(viewedProductsArray.length){
 
-                var imgLink = getImageLink(prodId);
-                console.log(imgLink);
+                for(var productIdx = 0; productIdx < viewedProductsArray.length; productIdx++){
+                    var prodId = viewedProductsArray[productIdx].id;
+
+                    //var imgLink = getImageLink(prodId);
+                    $('<div class="productImage"/>').data('imgLink', null).appendTo($viewProductsGrp);
+
+                    //$('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($viewProductsGrp);
 
 
-                $('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($viewProductsGrp);
-
-
+                }
             }
+
         }
         else{
-            console.warn('no items where found');
+            //console.warn('no items where found');
         }
 
         //RELATED
 
-        var $impressionGrp = $("<div class='impressionGrp'/>")
+        //var $impressionGrp = $("<div class='impressionGrp'/>")
 
+        /*
         for(var idx in impressionsArray){
 
             var impressionObj = impressionsArray[idx];
@@ -73,40 +82,59 @@ SREventElement.prototype.createAvatars = function(){
             var items = impressionObj.item_impressions;
             if(items.length){
 
-                var $impressionItemsGrp = $("<div class='itemsGrp'/>")
-                $impressionItemsGrp.appendTo($impressionObject);
+                var $impressionItemsGrp =
+                    $("<div class='itemsGrp'/>").appendTo($impressionObject);
+
 
                 for(var itemIdx = 0; itemIdx < items.length; itemIdx++){
                     var itemId = items[itemIdx];
-                    var imgLink = getImageLink(itemId);
+
+                    //var imgLink = getImageLink(itemId);
 
                     //console.log(itemId, imgLink);
+                    $('<div class="productImage"/>').data('imgLink', null).appendTo($impressionItemsGrp);
 
-                    $('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($impressionItemsGrp);
+                    //$('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($impressionItemsGrp);
 
 
                 }
             }
             else{
-                console.warn('no items where found');
+                //console.warn('no items where found');
             }
 
         }
 
-        //process time stamp
-        var date = srTimeStampToDate({srTimestamp:timestamp, format:"jquery"});
+        */
 
+        //process time stamp
+        //var date = srTimeStampToDate({srTimestamp:timestamp, format:"jquery"});
+        var date = timestamp;
+        //
+        //var $topMarker = $('<div class="topMarker"/>');
+        //var $bottomMarker = $('<div class="bottomMarker"/>');
+
+        /*
 
         this.$SREventElementExtended.append(
+            //$topMarker,
+            //$bottomMarker,
 
             $('<div class="inlineInfo"/>').append(
-                $('<span class="visitorId"/>').text(visitorId),
-                $('<span class="timestamp"/>').html(date)
-            ),
-            $viewProductsGrp,
-            $impressionGrp
+                $('<span class="visitorId"/>').text(visitorId)
+                //$('<span class="timestamp"/>').html(date)
+            )
+            //$viewProductsGrp,
+            //$impressionGrp
 
-        );
+        ).attr('id', visitorId);
+
+        */
+
+        //this.$SREventElementExtended.data().markers = {
+        //    top:$topMarker,
+        //    bottom:$bottomMarker
+        //};
 
         this.$SREventElement.append(
 
@@ -116,6 +144,7 @@ SREventElement.prototype.createAvatars = function(){
             )
 
         );
+    //.attr('id', visitorId);
 
     }
 
@@ -123,12 +152,65 @@ SREventElement.prototype.createAvatars = function(){
     //this.$SREventElement.data().twin = this.$SREventElementExtended;
     //this.$SREventElementExtended.data().twin = this.$SREventElement;
 
+};
+
+SREventElement.prototype.bindDomEvents = function(){
+
+    //this.$SREventElementExtended.on("onOutOfBuffer", function(){
+    //    $(this).addClass("out");
+    //});
+
+    this.$SREventElement.on("onInView", function(){
+
+        $(this).addClass("IN");
+
+
+        //display imgLink
+        //var $productImage = $(this).find(".itemsGrp .productImage");
+        //$productImage.each(function(){
+        //    var $this = $(this);
+        //    var imgLink = $this.data('imgLink');
+        //    $this.css("backgroundImage", "url("+imgLink+")");
+        //
+        //});
+
+    });
+
+    //onOutView
+    this.$SREventElement.on("onOutView", function(){
+        $(this).removeClass("IN");
+        //display imgLink
+        //var $productImage = $(this).find(".itemsGrp .productImage");
+        //$productImage.each(function(){
+        //    var $this = $(this);
+        //    var imgLink = $this.data('imgLink');
+        //    $this.css("backgroundImage", "url("+imgLink+")");
+        //
+        //});
+
+    });
+
+
+    //this.$SREventElementExtended.on("onInOfBuffer", function(){
+    //    $(this).removeClass("out");
+    //    //display imgLink
+    //    var $productImage = $(this).find(".itemsGrp .productImage");
+    //    $productImage.each(function(){
+    //        var $this = $(this);
+    //        var imgLink = $this.data('imgLink');
+    //        $this.css("backgroundImage", "url("+imgLink+")");
+    //
+    //    });
+    //
+    //});
+
 
 
 };
+
 SREventElement.prototype.getAvatars = function(){
     return {
-        bigBrother:this.$SREventElementExtended,
+        //bigBrother:this.$SREventElementExtended,
         littleBrother:this.$SREventElement};
 };
 SREventElement.prototype.getId = function(){
