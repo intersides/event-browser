@@ -27,10 +27,11 @@ SREventBrowser.prototype.init = function(){
 
     this.$app = this.initAvatar();
 
+    this.eventManager = new SREventManager({});
+
     this.buildInterfaceLayout();
     this.bindDomEvents();
 
-    this.eventManager = new SREventManager({});
 
     this.requestService({
         service:"onInit",
@@ -185,16 +186,13 @@ SREventBrowser.prototype.createIndividualVisitorAvatar = function(visitorId, ele
     var $historyContainer = $('<div class="historyContainer"/>').appendTo($SRIndividualVisitorElement);
 
 
-    return $SRIndividualVisitorElement;
-
-
     for(var timeStampId in timestamps){
 
         var historyBox = timestamps[timeStampId];
 
         //historyItems
         var $historyItem = $('<fieldset class="historyItem"/>');
-        //$historyContainer.append($historyItem);
+        $historyContainer.append($historyItem);
 
         var $random = $('<legend class="random" align="right" />').text(historyBox.random);
         $historyItem.append($random);
@@ -321,6 +319,7 @@ SREventBrowser.prototype.createIndividualVisitorAvatar = function(visitorId, ele
 
     }
 
+    return $SRIndividualVisitorElement;
 
 
 };
@@ -412,12 +411,49 @@ SREventBrowser.prototype.buildInterfaceLayout = function(){
 
     this.$searchTool = this.buildSearchTool();
 
+    this.$devOptions = $("<div class='devOptions'/>").append(
+        $('<input id="testPagination" type="checkbox"/>').on("change", function(evt){
+
+            if($(this).is(":checked")){
+
+                _this.$closerEventView.children().hide();
+
+                //build the pagination object
+                var paginationParams={
+                    itemsPerPage:10,
+                    srEvents:_this.eventManager.getSREvents()
+                };
+
+                _this.paginator = new Paginator(paginationParams);
+
+                var $pagTable = _this.paginator.buildTable();
+                _this.$closerEventView.append($pagTable);
+                $pagTable.trigger('onPaginatorAttachedToDom');
+
+            }
+            else{
+                _this.$closerEventView.children().show();
+
+                if(typeof _this.paginator != "undefined"){
+                    _this.paginator.remove();
+                }
+
+            }
+
+
+
+        }),
+        $('<label for="testPagination"/>').text('test pagination')
+    );
+
     this.$app.append(
         $("<section id='appLayout'/>")
             .append(
                 $('<div class="eventPage"/>').append(
                     $('<div class="utilityBar"/>').append(
-                        this.$searchTool
+                        this.eventManager.getAvatar(),
+                        this.$searchTool,
+                        this.$devOptions
                     ),
                     this.$closerEventView,
                     this.$individualParticipantStreamView,
@@ -706,32 +742,80 @@ SREventBrowser.prototype.connectToServer = function(in_params, connCallback){
 
                 break;
 
-            case "onAllEventObjectsSent":
+            case "onAllEventObjectsSent":{
+
                 var totalEvents = receivedMsg.msg.totalEvents;
                 var msg = totalEvents+" events have been received";
                 console.info(msg);
-                _this.eventManager.buildEventUI(function(){
-
-                    _this.bufferControl();
-
-                });
 
 
-                //console.log("individualVisitors:");
-                //console.log(_this.eventManager.individualVisitors);
-                var totalIndividualVisitors = 0;
-                for(var visitorId in _this.eventManager.individualVisitors){
+                //TODO:modify this flag to check the current paginator approach
+                var tryPaginator = false;
+                var includeAgglomerateVisitors = false;
 
-                    var $avt = _this.createIndividualVisitorAvatar(visitorId, _this.eventManager.individualVisitors[visitorId]);
+                if(tryPaginator){
+                    //build the pagination object
+                    var paginationParams={
+                        itemsPerPage:10,
+                        srEvents:_this.eventManager.getSREvents()
+                    };
+                    var paginator = new Paginator(paginationParams);
 
-                    _this.$individualParticipantStreamView.append($avt);
-
-                    totalIndividualVisitors++;
+                    var $pagTable = paginator.buildTable();
+                    _this.$closerEventView.append($pagTable);
+                    $pagTable.trigger('onPaginatorAttachedToDom');
 
                 }
-                console.log("totalIndividualVisitors", totalIndividualVisitors);
+                else{
 
-                break;
+                    _this.eventManager.buildEventUI(function(){
+
+                        _this.bufferControl();
+
+                    });
+
+
+                    if(includeAgglomerateVisitors){
+
+                        //console.log("individualVisitors:");
+                        //console.log(_this.eventManager.individualVisitors);
+
+                        var totalIndividualVisitors = 0;
+                        for(var visitorId in _this.eventManager.individualVisitors){
+
+
+
+                            var $avt = _this.createIndividualVisitorAvatar(visitorId, _this.eventManager.individualVisitors[visitorId]);
+
+                            _this.$individualParticipantStreamView.append($avt);
+
+                            totalIndividualVisitors++;
+
+                        }
+                        console.log("totalIndividualVisitors", totalIndividualVisitors);
+
+
+                    }
+                    else{
+
+                        _this.$individualParticipantStreamView.hide();
+                        _this.$closerEventView.css({
+                            width:"80%"
+                        });
+
+
+                    }
+
+
+                }
+
+
+
+
+
+
+
+            }break;
 
 
             default:

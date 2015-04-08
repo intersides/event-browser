@@ -13,9 +13,24 @@ var SREventManager = function(in_params){
     this.incrementalSteps = 0;
 
     this.eventsToReceive = null;
+
+    /**
+     * object attached to an observer.
+     * @type {null}
+     */
     this.currentSREvent = null;
+
+
+    /**
+     * the rebuilt event array received from the stream
+     * @type {Array}
+     */
     this.srEvents = [];
 
+    /**
+     * keeps individual visitors into a dictionary where the visitor id is the key
+     * @type {{}}
+     */
     this.individualVisitors = {};
 
 
@@ -38,11 +53,9 @@ SREventManager.prototype.bindObservables = function(){
 
         //console.log(newValue);
 
-
         _this.srEvents.push(newValue);
 
         var timestamp = newValue.timestamp;
-
 
         var item = {
             random:newValue.random
@@ -50,7 +63,6 @@ SREventManager.prototype.bindObservables = function(){
 
         if(typeof newValue.impressions !== "undefined"){
             item.impressions = newValue.impressions;
-
         }
 
         if(typeof newValue.viewed_products !== "undefined"){
@@ -66,7 +78,7 @@ SREventManager.prototype.bindObservables = function(){
         }
 
 
-
+        //group as well the individual visitors
         if(typeof( _this.individualVisitors[newValue.visitor_id] ) == "undefined"){
 
             _this.individualVisitors[newValue.visitor_id] = {
@@ -78,7 +90,6 @@ SREventManager.prototype.bindObservables = function(){
 
         _this.individualVisitors[newValue.visitor_id].timestamps[timestamp] = item;
 
-
         _this.$SREventManager.trigger({
             type:"onSREventAdded",
             addedSRElement:newValue
@@ -89,6 +100,9 @@ SREventManager.prototype.bindObservables = function(){
     });
 
 
+};
+SREventManager.prototype.getAvatar = function(){
+    return this.$SREventManager;
 };
 SREventManager.prototype.createAvatar = function(){
 
@@ -111,7 +125,7 @@ SREventManager.prototype.createAvatar = function(){
                     this.$incrementalInficator
                 )
             )
-        ).appendTo('body');
+        );
 
 };
 SREventManager.prototype.bindDomEvents = function(){
@@ -144,7 +158,7 @@ SREventManager.prototype.filterFor = function(in_val){
 
         var findings = [];
 
-        console.log(in_val);
+        //console.log(in_val);
 
         var valueToSearch = in_val.toUpperCase();
 
@@ -170,6 +184,7 @@ SREventManager.prototype.filterFor = function(in_val){
 
 };
 SREventManager.prototype.prepareReceivingEvent = function(in_totalEvents){
+
     this.eventsToReceive = in_totalEvents;
 
     this.loaderWidth = this.$loadingBar.outerWidth();
@@ -201,4 +216,6 @@ SREventManager.prototype.buildEventUI = function(callback){
 
 
 };
-//
+SREventManager.prototype.getSREvents = function(){
+  return this.srEvents
+};

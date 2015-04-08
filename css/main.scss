@@ -118,6 +118,11 @@ body{
       height: 30px;
       background-color: rgba(0, 120, 174, 0.34);
 
+      >*{
+        display: inline-block;
+        vertical-align: middle;
+      }
+
       .searchTool{
         position: absolute;
         right: 0;
