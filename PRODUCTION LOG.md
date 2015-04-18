@@ -43,3 +43,5 @@ JS function describing object are in js/entities.
 ## TOOLS
 Added `srTimeStampToDate` to convert timestamp into data object and/or jquery element.
 
+## RECENT MODIFICATIONS
+Apr 18 - Improving performance by converting some jQuery into vanilla javascript.
