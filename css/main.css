@@ -93,7 +93,12 @@ body .initWarning {
           border: none;
           padding: 0;
           margin: 0;
-          padding-left: 5px; }
+          padding-left: 5px;
+          width: auto;
+          height: 100%; }
+        #appLayout .eventPage #wideEventViewGrp .searchTool.notFound input[type=text] {
+          outline-color: red;
+          background-color: rgba(255, 0, 0, 0.29); }
       #appLayout .eventPage #wideEventViewGrp #wideEventView {
         position: absolute;
         width: 100%;
@@ -101,8 +106,8 @@ body .initWarning {
         bottom: 3px;
         border: 1px solid;
         overflow-y: auto;
-        background-color: lightyellow;
-        border-color: darkolivegreen; }
+        background-color: #f7f7ef;
+        border-color: lightblue; }
     #appLayout .eventPage #closerEventView {
       left: 0;
       border-color: green;
@@ -224,6 +229,9 @@ body .initWarning {
     padding-right: 1px; }
     .SREventElement .inlineInfo > *.visitorId {
       width: 90%; }
+      .SREventElement .inlineInfo > *.visitorId .visitorIdValue .inFilter {
+        display: inline-block;
+        background-color: yellow; }
     .SREventElement .inlineInfo > *.fa {
       min-width: 1em;
       font-size: 1.2em;

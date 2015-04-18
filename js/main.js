@@ -95,7 +95,8 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
                     var $imgTag = $('<div class="productImage" style="background-image: url('+imgLink+')"/>');
 
                     var prodf = viewedProductsArray[productIdx].f;
-                    console.log(prodf);
+                    //console.log(prodf);
+
                     if(typeof prodf !== "undefined"){
 
                         $('<fieldset class="scarabRecomended"/>').append(
@@ -358,55 +359,26 @@ SREventBrowser.prototype.buildSearchTool = function(){
         $('<input id="filter" type="text" placeholder="search..."/>').on('keyup change', function(event){
             var val = $(this).val();
             var findings = _this.eventManager.filterFor(val);
-            if(findings){
 
-                //console.log(findings);
+            _this.$wideEventView.empty();
+            _this.$devOptions.empty();
+
+            if(findings.length == 0){
+                _this.$app.trigger({
+                    type:"onEmptyFilterResults"
+                });
+            }
+            else{
+
+                $(this).parent().removeClass("notFound");
 
                 _this.$app.trigger({
                     type:"onEventsBunchReadyToDraw",
                     eventBunch:findings
                 });
-
-                return;
-
-                if(findings.length > 0){
-
-                    //console.log(findings);
-                    //_this.eventManager.filteredResult = true;
-
-                    _this.$wideEventView.empty();
-
-
-                    for(var evtIdx = 0; evtIdx < findings.length; evtIdx++){
-                        var evtObj = findings[evtIdx];
-                        var aSREventElement = new SREventElement(evtObj);
-
-                        var littleBrother = aSREventElement.getAvatars().littleBrother;
-
-                        //visitorId
-                        _this.$wideEventView.append(
-                            aSREventElement.getAvatars().littleBrother
-                        );
-
-                    }
-
-                    _this.buildViewNavigator();
-                    _this.bufferControl();
-
-                }
-                else if(findings.length == 0){
-                    //search string lenght was ok but no maching results
-                    //_this.eventManager.filteredResult = false;
-
-                    _this.eventManager.buildEventUI(function(){
-
-                        _this.bufferControl();
-
-                    });
-
-                }
-
             }
+
+
 
         }),
         $('<i class="fa fa-times-circle"/>').on('click', function(){
@@ -583,33 +555,44 @@ SREventBrowser.prototype.bindDomEvents = function(){
         //_this.adjustMiniNavigatorSize();
     };
 
+    //onEmptyFilterResults
+
+    this.$app.on('onEmptyFilterResults', function(evt){
+      var $filterInput = $("#filter");
+      $filterInput.parent().addClass("notFound");
+    });
+
+
+
     this.$app.on('onEventsBunchReadyToDraw', function(evt){
         //console.log(evt.eventBunch);
 
-        //build the pagination object
-        var paginationParams={
-            itemsPerPage:20,
-            srEvents:evt.eventBunch
-        };
-
-        _this.paginator = new Paginator(paginationParams);
-        var $pageFrameAvatar = _this.paginator.getPageFrameAvatar();
         _this.$wideEventView.empty();
-        _this.$wideEventView.append($pageFrameAvatar);
+        _this.$devOptions.empty();
+
+        if(evt.eventBunch.length > 0){
+
+            //build the pagination object
+            var paginationParams={
+                itemsPerPage:20,
+                srEvents:evt.eventBunch
+            };
+
+            _this.paginator = new Paginator(paginationParams);
+            var $pageFrameAvatar = _this.paginator.getPageFrameAvatar();
+            _this.$wideEventView.append($pageFrameAvatar);
+
+            _this.eventManager.buildEventUI(evt.eventBunch, function(){
+
+                var $pagTable = _this.paginator.buildTable();
+                _this.$devOptions.append($pagTable);
+                $pagTable.trigger('onPaginatorAttachedToDom');
+
+            });
 
 
+        }
 
-        _this.eventManager.buildEventUI(evt.eventBunch, function(){
-            //_this.bufferControl();
-
-            console.log('add paginator now');
-
-            var $pagTable = _this.paginator.buildTable();
-            _this.$devOptions.empty().append($pagTable);
-            $pagTable.trigger('onPaginatorAttachedToDom');
-
-
-        });
 
 
     });
@@ -638,12 +621,9 @@ SREventBrowser.prototype.bindDomEvents = function(){
     });
 
     this.$app.on('onLittleBrotherClicked', function(evt){
-
-        console.log($(evt.target).data().atPosition);
-        var pageIdContainigSelectedItem = _this.paginator.pageIndexContainingItemWithIndex($(evt.target).data().atPosition);
-
+        //console.log(evt.target.atPosition);
+        var pageIdContainigSelectedItem = _this.paginator.pageIndexContainingItemWithIndex(evt.target.atPosition);
         _this.paginator.setPage(pageIdContainigSelectedItem);
-
     });
 
 
@@ -651,17 +631,26 @@ SREventBrowser.prototype.bindDomEvents = function(){
     this.$app.on("onBuildEventAvatar",function(evt){
 
         var evtObj = evt.eventObj;
+        var putInEvidence = evt.putInEvidence;
 
-        var aSREventElement = new SREventElement(evtObj);
+        var aSREventElement = new SREventElement(evtObj, putInEvidence);
 
         _this.paginator.assignLittleAvatar(evt.atPosition, aSREventElement);
 
-        var $littleBroAvatar = aSREventElement.getAvatars().littleBrother;
-        $littleBroAvatar.data().atPosition = evt.atPosition;
+        var sREventElementAvatar = aSREventElement.getAvatars();
+        sREventElementAvatar.atPosition = evt.atPosition;
+
         _this.$wideEventView.append(
-            $littleBroAvatar
+            sREventElementAvatar
         );
 
+        //$littleBroAvatar.data().atPosition = evt.atPosition;
+        //
+        //_this.$wideEventView.append(
+        //    $littleBroAvatar
+        //);
+        //
+        //
 
     });
 };
@@ -747,8 +736,6 @@ SREventBrowser.prototype.connectToServer = function(in_params, connCallback){
                 break;
 
             case "onAllEventObjectsSent":{
-
-
 
                 var totalEvents = receivedMsg.msg.totalEvents;
                 var msg = totalEvents+" events have been received";

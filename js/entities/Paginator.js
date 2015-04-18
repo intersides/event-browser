@@ -33,6 +33,7 @@ Paginator.prototype.init = function(){
 
 };
 Paginator.prototype.initPageList = function(){
+    console.log("initPageList");
 
     var itemsPerPage = this.params.itemsPerPage;
     var page = null;
@@ -203,6 +204,7 @@ Paginator.prototype.refreshFrameAvatar = function() {
 
     var $firstOfPage = this.currentPage.littleBros[startRange];
 
+
     //cannot rely on th endRange since in the last page, there might be less items that the page full range
     var $lastOfPage = this.currentPage.littleBros[endRange];
     var lastItemIndex = endRange;
@@ -216,15 +218,21 @@ Paginator.prototype.refreshFrameAvatar = function() {
         //console.log($firstOfPage, $lastOfPage);
         var containerScrollTop = $('#wideEventView').scrollTop();
 
+        var $firstSREventElement = $($firstOfPage.SREventElement);
+        var $lastSREventElement = $($lastOfPage.SREventElement);
+
         this.$pageFrameAvatar.animate({
-            top:$firstOfPage.$SREventElement.position().top+containerScrollTop,
-            height:$lastOfPage.$SREventElement.position().top-$firstOfPage.$SREventElement.position().top+$firstOfPage.$SREventElement.outerHeight()
+            top:$firstSREventElement.position().top+containerScrollTop,
+            height:$lastSREventElement.position().top-$firstSREventElement.position().top+$firstSREventElement.outerHeight()
         }, 200, function(){
 
             for(var i = startRange; i <= lastItemIndex; i++){
+
                 var $littleBroAvatar = _this.currentPage.littleBros[i];
+
+
                 if(typeof $littleBroAvatar !== "undefined"){
-                    $littleBroAvatar.$SREventElement.addClass('selected');
+                    $littleBroAvatar.SREventElement.className += ' selected';
                 }
 
             }
@@ -232,7 +240,14 @@ Paginator.prototype.refreshFrameAvatar = function() {
             //check if the frame is off bounds or visibility.
             var $frame = $(this);
             var $frameParent = $frame.parent();
-            var topDifference = $frame.offset().top - $frameParent.offset().top;
+
+            console.log($frame.length, $frameParent.length);
+
+
+            var frameOffsetTop = $frame.offset().top;
+            var frameParentOffsetTop = $frameParent.offset().top;
+
+            var topDifference = frameOffsetTop - frameParentOffsetTop;
             if(topDifference < 0){
 
                 $frameParent.animate({
@@ -241,7 +256,7 @@ Paginator.prototype.refreshFrameAvatar = function() {
 
             }
             else{
-                var bottomDiff = ($frameParent.offset().top+$frameParent.outerHeight()) - ($frame.offset().top+$frame.outerHeight());
+                var bottomDiff = (frameParentOffsetTop + $frameParent.outerHeight()) - ( frameOffsetTop+$frame.outerHeight());
                 if(bottomDiff < 0){
                     $frameParent.animate({
                         scrollTop:"-="+bottomDiff
@@ -281,7 +296,8 @@ Paginator.prototype.buildAvatars = function(){
 };
 Paginator.prototype.buildTable = function(){
     var _this = this;
-    console.log(this.params.srEvents.length);
+    //console.log(this.params.srEvents.length);
+
 
     this.$pagesHolder = $('<div class="pagesHolder"/>');
     this.$paginatorTable.append(
@@ -305,9 +321,6 @@ Paginator.prototype.buildTable = function(){
             )
         )
     );
-
-
-
 
     return this.$paginatorTable;
 
@@ -335,11 +348,15 @@ Paginator.prototype.gotoPrevious = function(pageId){
 };
 Paginator.prototype.setPage = function(pageId){
 
-    this.currentPage = this.pages[pageId];
+    if(this.pages.length > 0){
+        this.currentPage = this.pages[pageId];
+        this.$paginatorTable.trigger('onPageChanged');
+    }
+    else{
+        console.warn('paginator has no pages');
+        this.$paginatorTable.trigger('onEmptyPages');
 
-    //console.log(this.currentPage);
-
-    this.$paginatorTable.trigger('onPageChanged');
+    }
 
 };
 Paginator.prototype.getPageFrameAvatar = function() {

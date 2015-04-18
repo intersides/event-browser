@@ -202,14 +202,29 @@ SREventManager.prototype.prepareReceivingEvent = function(in_totalEvents){
 };
 SREventManager.prototype.buildEventUI = function(in_events, callback){
 
+    console.error("buildEventUI called");
+
+    //reciver the filter string
+    var filterValue = $("#filter").val();
+
+    //TODO:time creation performance
+    var start = new Date().getTime();
     for(var evtIdx = 0; evtIdx < in_events.length; evtIdx++){
 
         this.$SREventManager.trigger({
-            type:'onBuildEventAvatar',
-            eventObj:in_events[evtIdx],
-            atPosition:evtIdx
+            type:'onBuildEventAvatar'
+            ,eventObj:in_events[evtIdx]
+            ,atPosition:evtIdx
+            ,putInEvidence:{
+                item:"visitorId",
+                filterValue:filterValue
+            }
         });
     }
+
+    var end = new Date().getTime();
+    var time = end - start;
+    console.info('Execution time: ' + time);
 
     if(callback){
         callback();

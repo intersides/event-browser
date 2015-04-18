@@ -1,9 +1,11 @@
 /**
  * Created by marco.falsitta on 04/04/15.
  */
-var SREventElement = function(in_params){
+var SREventElement = function(in_params, in_putInEvidence){
 
     this.params = in_params;
+
+    this.putInEvidence = in_putInEvidence;
 
     this.$SREventElement = null;
     this.$SREventElementExtended = null;
@@ -18,11 +20,17 @@ SREventElement.prototype.init = function(){
 
 SREventElement.prototype.createAvatars = function(){
 
+    var _this = this;
     //console.log(this.params);
 
-    this.$SREventElement = $("<div class='SREventElement minified'/>");
-    this.$SREventElement.data().eventObj = this.params;
+    this.SREventElement = document.createElement("div");
+    this.SREventElement.className = 'SREventElement minified';
+    this.SREventElement.eventObj = this.params;
 
+    //
+    //    this.$SREventElement = $("<div class='SREventElement minified'/>");
+    //    this.$SREventElement.data().eventObj = this.params;
+    //
     //this.$SREventElementExtended = $("<div class='SREventElementExtended out'/>");
 
 
@@ -36,7 +44,8 @@ SREventElement.prototype.createAvatars = function(){
 
 
         //VIEWED PRODUCTS
-        var $viewProductsGrp = $("<div class='viewProductsGrp'/>");
+        //var viewProductsGrp = document.createElement('div').className = "viewProductsGrp";
+        //var $viewProductsGrp = $("<div class='viewProductsGrp'/>");
 
         var isScarab = false;
         if(typeof viewedProductsArray != "undefined"){
@@ -142,34 +151,130 @@ SREventElement.prototype.createAvatars = function(){
         //    bottom:$bottomMarker
         //};
 
-        this.$SREventElement.append(
+        //console.log(this.putInEvidence);
 
-            $('<div class="inlineInfo"/>').append(
-                (function(c_isScarab){
-                    var $icon = $("<i class='fa'/>");
-                    if(c_isScarab){
-                        $icon.addClass('fa-bug')
-                    }
-                    return $icon;
-                }(isScarab)),
-                $('<span class="visitorId"/>').text(visitorId),
-                //,$('<span class="timestamp"/>').html(date)
+        this.SREventElement.appendChild(
 
-                (function(){
-                    return $("<i class='fa fa-search'/>").on('click', function(evt){
-                        evt.stopPropagation();
-                        console.log($(this).siblings('.visitorId').text());
-                        $('#filter').val($(this).siblings('.visitorId').text()).trigger('change');
+            (function(){
+                var inlineInfoDiv = document.createElement('div');
+                inlineInfoDiv.className="inlineInfo";
 
-                    })
-                }())
+                inlineInfoDiv.appendChild(
 
-            )
+                    (function(c_isScarab){
+                        var icon = document.createElement('i');
+                        icon.className = 'fa';
+                        if(c_isScarab){
+                            icon.className += ' fa-bug';
+                        }
+                        return icon;
+                    }(isScarab))
 
-        ).on('click', function(){
-                $(this).trigger("onLittleBrotherClicked");
-            });
-    //.attr('id', visitorId);
+                );
+                inlineInfoDiv.appendChild(
+                    (function(c_visitorId, c_putInEvidence){
+
+                        var htmlVisitorId = document.createElement('span');
+                        htmlVisitorId.className = "visitorIdValue";
+
+                        if(c_putInEvidence.filterValue != "" && c_putInEvidence.item == 'visitorId' ){
+                            //split
+                            htmlVisitorId.innerHTML = c_visitorId.replace(c_putInEvidence.filterValue, "<span class='inFilter'>"+c_putInEvidence.filterValue+"</span>")
+                        }
+                        else{
+                            htmlVisitorId.textContent = c_visitorId;
+                        }
+
+                        var visitorId = document.createElement('span');
+                        visitorId.appendChild(htmlVisitorId);
+                        visitorId.className='visitorId';
+                        return visitorId;
+
+                    }(visitorId, _this.putInEvidence))
+
+                );
+                inlineInfoDiv.appendChild(
+                    (function(){
+                        var searchIcon =  document.createElement('i');
+                        searchIcon.className='fa fa-search';
+                        searchIcon.onclick = function(evt){
+                            evt.stopPropagation();
+
+                            var siblings = this.parentNode.childNodes;
+
+                            var visitorId = null;
+                            for(var elemIdx in siblings){
+                                if(siblings[elemIdx].className == 'visitorId'){
+                                    visitorId = siblings[elemIdx];
+                                    break;
+                                }
+                            }
+                            var filterInput = document.getElementById('filter');
+                            filterInput.value = visitorId.textContent;
+
+                            //manually trigger the change event
+                            if ("createEvent" in document) {
+                                var evt = document.createEvent("HTMLEvents");
+                                evt.initEvent("change", false, true);
+                                filterInput.dispatchEvent(evt);
+                            }
+                            else{
+                                filterInput.fireEvent("onchange");
+                            }
+
+                            //$('#filter').val($(this).siblings('.visitorId').text()).trigger('change');
+
+                        };
+                        return searchIcon;
+                    }())
+                );
+
+                return inlineInfoDiv;
+
+            }())
+
+        );
+
+        this.SREventElement.onclick = function(){
+            $(this).trigger("onLittleBrotherClicked");
+        };
+
+
+        //else{
+        //
+        //    this.$SREventElement.append(
+        //
+        //        $('<div class="inlineInfo"/>').append(
+        //            (function(c_isScarab){
+        //                var $icon = $("<i class='fa'/>");
+        //                if(c_isScarab){
+        //                    $icon.addClass('fa-bug')
+        //                }
+        //                return $icon;
+        //            }(isScarab)),
+        //            $('<span class="visitorId"/>').text(visitorId),
+        //            //,$('<span class="timestamp"/>').html(date)
+        //
+        //            (function(){
+        //                return $("<i class='fa fa-search'/>").on('click', function(evt){
+        //                    evt.stopPropagation();
+        //                    console.log($(this).siblings('.visitorId').text());
+        //                    $('#filter').val($(this).siblings('.visitorId').text()).trigger('change');
+        //
+        //                })
+        //            }())
+        //
+        //        )
+        //
+        //    ).on('click', function(){
+        //            $(this).trigger("onLittleBrotherClicked");
+        //        });
+        //    //.attr('id', visitorId);
+        //}
+        //
+
+
+
 
     }
 
@@ -185,58 +290,31 @@ SREventElement.prototype.bindDomEvents = function(){
     //    $(this).addClass("out");
     //});
 
-    this.$SREventElement.on("onInView", function(){
+    if(this.$SREventElement != null){
 
-        $(this).addClass("IN");
+        this.$SREventElement.on("onInView", function(){
+            $(this).addClass("IN");
+        });
 
-
-        //display imgLink
-        //var $productImage = $(this).find(".itemsGrp .productImage");
-        //$productImage.each(function(){
-        //    var $this = $(this);
-        //    var imgLink = $this.data('imgLink');
-        //    $this.css("backgroundImage", "url("+imgLink+")");
-        //
-        //});
-
-    });
-
-    //onOutView
-    this.$SREventElement.on("onOutView", function(){
-        $(this).removeClass("IN");
-        //display imgLink
-        //var $productImage = $(this).find(".itemsGrp .productImage");
-        //$productImage.each(function(){
-        //    var $this = $(this);
-        //    var imgLink = $this.data('imgLink');
-        //    $this.css("backgroundImage", "url("+imgLink+")");
-        //
-        //});
-
-    });
+        //onOutView
+        this.$SREventElement.on("onOutView", function(){
+            $(this).removeClass("IN");
+        });
 
 
-    //this.$SREventElementExtended.on("onInOfBuffer", function(){
-    //    $(this).removeClass("out");
-    //    //display imgLink
-    //    var $productImage = $(this).find(".itemsGrp .productImage");
-    //    $productImage.each(function(){
-    //        var $this = $(this);
-    //        var imgLink = $this.data('imgLink');
-    //        $this.css("backgroundImage", "url("+imgLink+")");
-    //
-    //    });
-    //
-    //});
-
+    }
 
 
 };
 
 SREventElement.prototype.getAvatars = function(){
-    return {
-        //bigBrother:this.$SREventElementExtended,
-        littleBrother:this.$SREventElement};
+    return this.SREventElement;
+
+    //return {
+    //    //bigBrother:this.$SREventElementExtended,
+    //    skimmedBrother:this.SREventElement,
+    //    littleBrother:this.$SREventElement
+    //};
 };
 SREventElement.prototype.getId = function(){
     return this.params.visitor_id;
