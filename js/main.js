@@ -53,9 +53,12 @@ SREventBrowser.prototype.initAvatar = function(){
 //redrawDetailedElements
 SREventBrowser.prototype.redrawDetailedElements = function(inBufferElements){
 
+    //console.log(inBufferElements);
+
     this.$closerEventView.empty();
     for(var elemIdx = 0; elemIdx < inBufferElements.length; elemIdx++){
         var $a = this.createDetailAvatar(inBufferElements[elemIdx]);
+
         //console.log($a);
         this.$closerEventView.append($a);
     }
@@ -68,7 +71,7 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
 
     var $SREventElementExtended = $("<div class='SREventElementExtended'/>");
 
-    if(typeof elemObj.visitor_id !== "undefined"){
+    if(typeof elemObj !== "undefined"){
 
         var visitorId =elemObj.visitor_id;
         var timestamp =elemObj.timestamp;
@@ -85,12 +88,28 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
             if(viewedProductsArray.length){
 
                 for(var productIdx = 0; productIdx < viewedProductsArray.length; productIdx++){
+
                     var prodId = viewedProductsArray[productIdx].id;
 
                     var imgLink = getImageLink(prodId);
-                    //$('<div class="productImage"/>').data('imgLink', null).appendTo($viewProductsGrp);
+                    var $imgTag = $('<div class="productImage" style="background-image: url('+imgLink+')"/>');
 
-                    $('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($viewProductsGrp);
+                    var prodf = viewedProductsArray[productIdx].f;
+                    console.log(prodf);
+                    if(typeof prodf !== "undefined"){
+
+                        $('<fieldset class="scarabRecomended"/>').append(
+                            $('<legend/>').append(
+                                $('<i class="fa fa-bug"/>'),
+                                $('<span/>').text(prodf)
+                            ),
+                            $imgTag
+                        ).appendTo($viewProductsGrp);
+
+                    }
+                    else{
+                        $imgTag.appendTo($viewProductsGrp);
+                    }
 
 
                 }
@@ -163,13 +182,17 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
 
          ).attr('id', visitorId);
 
-
+        return $SREventElementExtended;
+    }
+    else{
+        return null;
     }
 
 
-    return $SREventElementExtended;
 
 };
+
+/*
 SREventBrowser.prototype.createIndividualVisitorAvatar = function(visitorId, elemObj){
 
     var _this = this;
@@ -297,7 +320,8 @@ SREventBrowser.prototype.createIndividualVisitorAvatar = function(visitorId, ele
                 //f, id, q, p
                 if(typeof productInCart.f == "undefined"){
                     productInCart.f = null;
-                    //console.log(productInCart);
+                    console.log("*****");
+                    console.log("NULL", productInCart);
 
                 }
 
@@ -323,17 +347,27 @@ SREventBrowser.prototype.createIndividualVisitorAvatar = function(visitorId, ele
 
 
 };
-
+*/
 SREventBrowser.prototype.buildSearchTool = function(){
 
     var _this = this;
 
-    var $st = $('<div class="searchTool"/>').append(
-        $('<label for="filter"/>').text('filter:'),
-        $('<input id="filter" type="text" placeholder="search..."/>').on('keyup', function(event){
+    var $st =
+        $('<div class="searchTool"/>').append(
+        //$('<label for="filter"/>').text('filter:'),
+        $('<input id="filter" type="text" placeholder="search..."/>').on('keyup change', function(event){
             var val = $(this).val();
             var findings = _this.eventManager.filterFor(val);
             if(findings){
+
+                //console.log(findings);
+
+                _this.$app.trigger({
+                    type:"onEventsBunchReadyToDraw",
+                    eventBunch:findings
+                });
+
+                return;
 
                 if(findings.length > 0){
 
@@ -374,6 +408,9 @@ SREventBrowser.prototype.buildSearchTool = function(){
 
             }
 
+        }),
+        $('<i class="fa fa-times-circle"/>').on('click', function(){
+            $("#filter").val("").trigger('change')
         })
     );
 
@@ -386,17 +423,17 @@ SREventBrowser.prototype.buildViewNavigator = function(){
     var _this = this;
 
     this.$smallViewBuffer = $('<div id="smallViewBuffer"/>');
-    this.$wideEventView.append(this.$smallViewBuffer);
+    //this.$wideEventView.append(this.$smallViewBuffer);
 
-    this.$smallViewBuffer.draggable({
-        containment: "parent",
-        stop: function( event, ui ){
-            _this.bufferControl();
-        }
-
-    });
-
-    this.adjustMiniNavigatorSize();
+    //this.$smallViewBuffer.draggable({
+    //    containment: "parent",
+    //    stop: function( event, ui ){
+    //        _this.bufferControl();
+    //    }
+    //
+    //});
+    //
+    //this.adjustMiniNavigatorSize();
 
 
 };
@@ -405,45 +442,20 @@ SREventBrowser.prototype.buildInterfaceLayout = function(){
     var _this = this;
 
     this.$closerEventView = $('<div id="closerEventView"/>');
+
+
+
+    this.$wideEventViewGrp = $('<div id="wideEventViewGrp"/>');
     this.$wideEventView = $('<div id="wideEventView"/>');
 
-    this.$individualParticipantStreamView = $('<div id="individualParticipantStreamView"/>');
-
     this.$searchTool = this.buildSearchTool();
+    this.$wideEventViewGrp.append(
+        this.$searchTool,
+        this.$wideEventView
+    );
 
     this.$devOptions = $("<div class='devOptions'/>").append(
-        $('<input id="testPagination" type="checkbox"/>').on("change", function(evt){
 
-            if($(this).is(":checked")){
-
-                _this.$closerEventView.children().hide();
-
-                //build the pagination object
-                var paginationParams={
-                    itemsPerPage:10,
-                    srEvents:_this.eventManager.getSREvents()
-                };
-
-                _this.paginator = new Paginator(paginationParams);
-
-                var $pagTable = _this.paginator.buildTable();
-                _this.$closerEventView.append($pagTable);
-                $pagTable.trigger('onPaginatorAttachedToDom');
-
-            }
-            else{
-                _this.$closerEventView.children().show();
-
-                if(typeof _this.paginator != "undefined"){
-                    _this.paginator.remove();
-                }
-
-            }
-
-
-
-        }),
-        $('<label for="testPagination"/>').text('test pagination')
     );
 
     this.$app.append(
@@ -451,13 +463,17 @@ SREventBrowser.prototype.buildInterfaceLayout = function(){
             .append(
                 $('<div class="eventPage"/>').append(
                     $('<div class="utilityBar"/>').append(
-                        this.eventManager.getAvatar(),
-                        this.$searchTool,
-                        this.$devOptions
+
+                        $('<div class="HorizontalLayout extended"/>').append(
+                            $('<div class="HorizontalRow"/>').append(
+                                this.eventManager.getAvatar(),
+                                this.$devOptions
+                            )
+                        )
+
                     ),
                     this.$closerEventView,
-                    this.$individualParticipantStreamView,
-                    this.$wideEventView
+                    this.$wideEventViewGrp
 
                 )
         )
@@ -472,66 +488,6 @@ SREventBrowser.prototype.buildInterfaceLayout = function(){
     var bufferOffset = this.$creationBuffer.offset();
     var bufferTop = bufferOffset.top;
     var bufferBottom = bufferTop+this.$creationBuffer.outerHeight();
-
-
-    //console.log(bufferTop, bufferBottom);
-
-    /*
-    var bufferControl = function(){
-
-        $('.SREventElementExtended').each(function(){
-            var markers = $(this).data().markers;
-            var $topMarker = markers.top;
-            var $bottomMarker = markers.bottom;
-
-            var topMarkerOffsetTop = $topMarker.offset().top;
-            var bottomMarkerOffsetTop = $bottomMarker.offset().top;
-
-
-            //if($(this).hasClass('74194BC0B3C42057')){
-            //    console.log(bufferTop, bufferBottom, $topMarker.offset().top, $bottomMarker.offset().top);
-            //}
-
-            if(
-                topMarkerOffsetTop < bufferTop
-                &&
-                bottomMarkerOffsetTop < bufferTop
-            ){
-                $topMarker.trigger({
-                    type:"onOutOfBuffer"
-                });
-            }
-
-            if(
-                topMarkerOffsetTop > bufferTop
-                &&
-                bottomMarkerOffsetTop < bufferBottom
-
-            ){
-                $topMarker.trigger({
-                    type:"onInOfBuffer"
-                });
-            }
-
-
-
-
-        });
-
-
-
-    };
-    */
-    //this.$closerEventView.on('scroll', function(){
-    //    bufferControl();
-    //    var _$this = $(this);
-    //
-    //    console.log(_$this.offset().top);
-    //
-    //
-    //
-    //});
-
 
 };
 SREventBrowser.prototype.adjustMiniNavigatorSize = function() {
@@ -560,6 +516,7 @@ SREventBrowser.prototype.adjustMiniNavigatorSize = function() {
 
 SREventBrowser.prototype.bufferControl = function() {
 
+    return;
 
     var smallViewTop = this.$smallViewBuffer.offset().top;
     var smallViewH = smallViewTop+this.$smallViewBuffer.outerHeight();
@@ -623,9 +580,46 @@ SREventBrowser.prototype.bindDomEvents = function(){
     var _this = this;
 
     window.onresize = function(){
-        _this.adjustMiniNavigatorSize();
+        //_this.adjustMiniNavigatorSize();
     };
 
+    this.$app.on('onEventsBunchReadyToDraw', function(evt){
+        //console.log(evt.eventBunch);
+
+        //build the pagination object
+        var paginationParams={
+            itemsPerPage:20,
+            srEvents:evt.eventBunch
+        };
+
+        _this.paginator = new Paginator(paginationParams);
+        var $pageFrameAvatar = _this.paginator.getPageFrameAvatar();
+        _this.$wideEventView.empty();
+        _this.$wideEventView.append($pageFrameAvatar);
+
+
+
+        _this.eventManager.buildEventUI(evt.eventBunch, function(){
+            //_this.bufferControl();
+
+            console.log('add paginator now');
+
+            var $pagTable = _this.paginator.buildTable();
+            _this.$devOptions.empty().append($pagTable);
+            $pagTable.trigger('onPaginatorAttachedToDom');
+
+
+        });
+
+
+    });
+
+
+
+    this.$app.on('srEventsInFocus', function(evt){
+        //console.log(evt.eventsInFocus);
+        _this.redrawDetailedElements(evt.eventsInFocus);
+    });
 
     //THANKS TO : http://stackoverflow.com/questions/9144560/jquery-scroll-detect-when-user-stops-scrolling
     this.$wideEventView.on('scroll', function() {
@@ -643,6 +637,16 @@ SREventBrowser.prototype.bindDomEvents = function(){
         );
     });
 
+    this.$app.on('onLittleBrotherClicked', function(evt){
+
+        console.log($(evt.target).data().atPosition);
+        var pageIdContainigSelectedItem = _this.paginator.pageIndexContainingItemWithIndex($(evt.target).data().atPosition);
+
+        _this.paginator.setPage(pageIdContainigSelectedItem);
+
+    });
+
+
 
     this.$app.on("onBuildEventAvatar",function(evt){
 
@@ -650,14 +654,14 @@ SREventBrowser.prototype.bindDomEvents = function(){
 
         var aSREventElement = new SREventElement(evtObj);
 
+        _this.paginator.assignLittleAvatar(evt.atPosition, aSREventElement);
+
+        var $littleBroAvatar = aSREventElement.getAvatars().littleBrother;
+        $littleBroAvatar.data().atPosition = evt.atPosition;
         _this.$wideEventView.append(
-            aSREventElement.getAvatars().littleBrother
+            $littleBroAvatar
         );
 
-        //_this.$closerEventView.append(
-            //aSREventElement.getAvatars().bigBrother
-        //);
-        //
 
     });
 };
@@ -744,72 +748,16 @@ SREventBrowser.prototype.connectToServer = function(in_params, connCallback){
 
             case "onAllEventObjectsSent":{
 
+
+
                 var totalEvents = receivedMsg.msg.totalEvents;
                 var msg = totalEvents+" events have been received";
                 console.info(msg);
 
-
-                //TODO:modify this flag to check the current paginator approach
-                var tryPaginator = false;
-                var includeAgglomerateVisitors = false;
-
-                if(tryPaginator){
-                    //build the pagination object
-                    var paginationParams={
-                        itemsPerPage:10,
-                        srEvents:_this.eventManager.getSREvents()
-                    };
-                    var paginator = new Paginator(paginationParams);
-
-                    var $pagTable = paginator.buildTable();
-                    _this.$closerEventView.append($pagTable);
-                    $pagTable.trigger('onPaginatorAttachedToDom');
-
-                }
-                else{
-
-                    _this.eventManager.buildEventUI(function(){
-
-                        _this.bufferControl();
-
-                    });
-
-
-                    if(includeAgglomerateVisitors){
-
-                        //console.log("individualVisitors:");
-                        //console.log(_this.eventManager.individualVisitors);
-
-                        var totalIndividualVisitors = 0;
-                        for(var visitorId in _this.eventManager.individualVisitors){
-
-
-
-                            var $avt = _this.createIndividualVisitorAvatar(visitorId, _this.eventManager.individualVisitors[visitorId]);
-
-                            _this.$individualParticipantStreamView.append($avt);
-
-                            totalIndividualVisitors++;
-
-                        }
-                        console.log("totalIndividualVisitors", totalIndividualVisitors);
-
-
-                    }
-                    else{
-
-                        _this.$individualParticipantStreamView.hide();
-                        _this.$closerEventView.css({
-                            width:"80%"
-                        });
-
-
-                    }
-
-
-                }
-
-
+                _this.$app.trigger({
+                    type:"onEventsBunchReadyToDraw",
+                    eventBunch:_this.eventManager.getSREvents()
+                });
 
 
 

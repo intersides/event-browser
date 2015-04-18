@@ -154,7 +154,7 @@ SREventManager.prototype.addSREvent = function(in_eventObj){
 SREventManager.prototype.filterFor = function(in_val){
 
 
-    if(in_val.length >= 3){
+    //if(in_val.length >= 1){
 
         var findings = [];
 
@@ -179,8 +179,10 @@ SREventManager.prototype.filterFor = function(in_val){
 
         return findings;
 
-    }
-    return null;
+    //}
+    //else{
+    //    return this.srEvents;
+    //}
 
 };
 SREventManager.prototype.prepareReceivingEvent = function(in_totalEvents){
@@ -198,13 +200,14 @@ SREventManager.prototype.prepareReceivingEvent = function(in_totalEvents){
     });
 
 };
-SREventManager.prototype.buildEventUI = function(callback){
+SREventManager.prototype.buildEventUI = function(in_events, callback){
 
-    for(var evtIdx = 0; evtIdx < this.srEvents.length; evtIdx++){
+    for(var evtIdx = 0; evtIdx < in_events.length; evtIdx++){
 
         this.$SREventManager.trigger({
             type:'onBuildEventAvatar',
-            eventObj:this.srEvents[evtIdx]
+            eventObj:in_events[evtIdx],
+            atPosition:evtIdx
         });
     }
 

@@ -38,15 +38,21 @@ SREventElement.prototype.createAvatars = function(){
         //VIEWED PRODUCTS
         var $viewProductsGrp = $("<div class='viewProductsGrp'/>");
 
+        var isScarab = false;
         if(typeof viewedProductsArray != "undefined"){
 
             if(viewedProductsArray.length){
 
                 for(var productIdx = 0; productIdx < viewedProductsArray.length; productIdx++){
                     var prodId = viewedProductsArray[productIdx].id;
+                    var prodF = viewedProductsArray[productIdx].f;
+                    if(typeof prodF != "undefined"){
+                        //console.log(prodF);
+                        isScarab = true;
+                    }
 
                     //var imgLink = getImageLink(prodId);
-                    $('<div class="productImage"/>').data('imgLink', null).appendTo($viewProductsGrp);
+                    //$('<div class="productImage"/>').data('imgLink', null).appendTo($viewProductsGrp);
 
                     //$('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($viewProductsGrp);
 
@@ -139,11 +145,30 @@ SREventElement.prototype.createAvatars = function(){
         this.$SREventElement.append(
 
             $('<div class="inlineInfo"/>').append(
+                (function(c_isScarab){
+                    var $icon = $("<i class='fa'/>");
+                    if(c_isScarab){
+                        $icon.addClass('fa-bug')
+                    }
+                    return $icon;
+                }(isScarab)),
                 $('<span class="visitorId"/>').text(visitorId),
-                $('<span class="timestamp"/>').html(date)
+                //,$('<span class="timestamp"/>').html(date)
+
+                (function(){
+                    return $("<i class='fa fa-search'/>").on('click', function(evt){
+                        evt.stopPropagation();
+                        console.log($(this).siblings('.visitorId').text());
+                        $('#filter').val($(this).siblings('.visitorId').text()).trigger('change');
+
+                    })
+                }())
+
             )
 
-        );
+        ).on('click', function(){
+                $(this).trigger("onLittleBrotherClicked");
+            });
     //.attr('id', visitorId);
 
     }

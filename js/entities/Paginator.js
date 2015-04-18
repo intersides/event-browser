@@ -16,24 +16,20 @@ var Paginator = function(in_params){
     this.firstPage = null;
     this.lastPage = null;
 
-    this.pageNumber = 0;
     this.currentPage = null;
 
-
+    this.totalPages = 0;
 
     this.init();
 
 };
 Paginator.prototype.init = function(){
 
-    console.log(this.params.srEvents.length);
+    //console.log(this.params.srEvents.length);
 
     this.initPageList();
     this.buildAvatars();
     this.bindDomEvents();
-
-    this.gotoPage(1);
-
 
 };
 Paginator.prototype.initPageList = function(){
@@ -74,7 +70,9 @@ Paginator.prototype.initPageList = function(){
     }
     this.lastPage = page;
 
-    console.log(this.firstPage, this.lastPage);
+    this.totalPages = steps;
+
+    //console.log(this.firstPage, this.lastPage, this.totalPages);
 
 };
 
@@ -82,72 +80,224 @@ Paginator.prototype.bindDomEvents = function(){
     var _this = this;
 
     this.$paginatorTable.on('onPaginatorAttachedToDom', function(evt){
-        _this.gotoPage(1);
-        $(this).trigger({
-            type:"onPageChanged",
-            pageObj:_this.currentPage
-        });
-    });
 
-    this.$paginatorTable.on('onPageChanged', function(evt){
-        console.log('onPageChanged', evt.pageObj);
-        //deterine range
-        var startRange = evt.pageObj.params.range.start;
-        var endRange = evt.pageObj.params.range.end;
+        //console.error(_this.$pagesHolder.outerWidth());
+        var last = null;
+        var itemWidth = 50;
+        var margins=2;
+        var padding=2;
+        var borderWidth = 1;
 
-        for(var i = startRange; i <= endRange; i++ ){
-            console.log(_this.params.srEvents[i]);
+        //var $previousElement = null;
+        for(var i = 0; i < _this.totalPages; i++){
+            var $pageAvatar = $('<span class="pageIcon"/>').text(i).css({
+                margin:margins,
+                padding:padding,
+                width:itemWidth,
+                borderWidth:borderWidth
+            }).on('click', function(){
+                _this.setPage($(this).data('pageN'));
+            }).data('pageN', i);
+            _this.pages[i].setPageButtonAvatar($pageAvatar);
+
+            //var computedWidth = itemWidth*(i+1)+padding+margins+borderWidth;
+            //if(computedWidth <= _this.$pagesHolder.outerWidth()){
+
+                //console.log("computedWidth = ", computedWidth);
+
+                _this.$pagesHolder.append($pageAvatar);
+                //$previousElement = $pageAvatar;
+
+            //}
+            //else{
+            //    $previousElement.text('...');
+            //    break;
+            //}
+
+
         }
 
 
+        _this.setPage(0);
+
     });
 
 
+    this.$paginatorTable.on('onPageChanged', function(evt){
+        //console.log('onPageChanged');
+        //deterine range
+        var startRange = _this.currentPage.params.range.start;
+        var endRange = _this.currentPage.params.range.end;
+
+        var $currentPageButtonAvatar = _this.pages[_this.currentPage.params.idx].getPageButtonAvatar();
+        $currentPageButtonAvatar.siblings().removeClass('selected');
+        $currentPageButtonAvatar.addClass('selected');
+
+        //set selected page in focus.
+        var $buttonContainer =  $currentPageButtonAvatar.parent();
+
+        var parentLeft = $buttonContainer.offset().left;
+        var buttonLeft = $currentPageButtonAvatar.offset().left;
+
+        var parentMaxRigth = $buttonContainer.outerWidth()+parentLeft;
+        var buttonMaxRight = $currentPageButtonAvatar.outerWidth()+buttonLeft;
+
+        var differenceRL = parentMaxRigth - buttonMaxRight;
+        if(differenceRL < 0){
+            $buttonContainer.animate({scrollLeft: "-="+differenceRL}, 200);
+        }
+        else{
+            var differenceLeftOverflow = parentLeft - buttonLeft;
+            if(differenceLeftOverflow > 0){
+                //console.error(differenceLeftOverflow);
+                $buttonContainer.animate({scrollLeft: "-="+differenceLeftOverflow}, 200);
+            }
+
+        }
+        //console.log(parentMaxRigth, buttonMaxRight, differenceRL);
+
+        var srEventsInFocus = [];
+        for(var i = startRange; i <= endRange; i++ ){
+            var srEvent = _this.params.srEvents[i];
+            //console.log(srEvent);
+            srEventsInFocus.push(srEvent)
+        }
+
+        _this.$paginatorTable.trigger({
+            type:'srEventsInFocus',
+            eventsInFocus:srEventsInFocus
+        });
+
+        _this.refreshFrameAvatar();
+
+
+    });
+
+};
+Paginator.prototype.pageIndexContainingItemWithIndex = function(in_index){
+
+    return parseInt(in_index/this.params.itemsPerPage);
+
 };
 
+Paginator.prototype.assignLittleAvatar = function(in_index, in_$avatar){
+
+    var pageIndex = this.pageIndexContainingItemWithIndex(in_index);
+
+
+    this.pages[pageIndex].littleBros[in_index] = in_$avatar;
+
+    //console.warn(in_index, this.params.itemsPerPage, pageIndex, this.pages[pageIndex]);
+
+
+
+};
+Paginator.prototype.refreshFrameAvatar = function() {
+    //this.$pageFrameAvatar
+    var _this = this;
+    var startRange = this.currentPage.params.range.start;
+    var endRange = this.currentPage.params.range.end;
+
+    var $allSREventElements = $('.SREventElement');
+    $allSREventElements.removeClass('selected');
+
+    var $firstOfPage = this.currentPage.littleBros[startRange];
+
+    //cannot rely on th endRange since in the last page, there might be less items that the page full range
+    var $lastOfPage = this.currentPage.littleBros[endRange];
+    var lastItemIndex = endRange;
+    for(var idx in this.currentPage.littleBros){
+        $lastOfPage = this.currentPage.littleBros[idx];
+        lastItemIndex = idx;
+    }
+
+    if(typeof $firstOfPage !== "undefined"){
+
+        //console.log($firstOfPage, $lastOfPage);
+        var containerScrollTop = $('#wideEventView').scrollTop();
+
+        this.$pageFrameAvatar.animate({
+            top:$firstOfPage.$SREventElement.position().top+containerScrollTop,
+            height:$lastOfPage.$SREventElement.position().top-$firstOfPage.$SREventElement.position().top+$firstOfPage.$SREventElement.outerHeight()
+        }, 200, function(){
+
+            for(var i = startRange; i <= lastItemIndex; i++){
+                var $littleBroAvatar = _this.currentPage.littleBros[i];
+                if(typeof $littleBroAvatar !== "undefined"){
+                    $littleBroAvatar.$SREventElement.addClass('selected');
+                }
+
+            }
+
+            //check if the frame is off bounds or visibility.
+            var $frame = $(this);
+            var $frameParent = $frame.parent();
+            var topDifference = $frame.offset().top - $frameParent.offset().top;
+            if(topDifference < 0){
+
+                $frameParent.animate({
+                    scrollTop:"+="+topDifference
+                }, 200);
+
+            }
+            else{
+                var bottomDiff = ($frameParent.offset().top+$frameParent.outerHeight()) - ($frame.offset().top+$frame.outerHeight());
+                if(bottomDiff < 0){
+                    $frameParent.animate({
+                        scrollTop:"-="+bottomDiff
+                    }, 200);
+
+                }
+                //console.log(bottomDiff);
+
+            }
+
+        });
+    }
+    else{
+        console.error('cannot find the $firstOfPage avatar');
+    }
+
+
+};
 Paginator.prototype.buildAvatars = function(){
 
     var _this = this;
 
-    this.$paginatorTable = $('<table/>');
+    this.$paginatorTable = $('<table id="Paginator"/>');
 
     this.$previousButton = $('<button/>').text('<').on('click', function(){
-
         _this.gotoPrevious();
-        $(this).trigger({
-            type:'onPageChanged',
-            pageObj:_this.currentPage
-        });
-
     });
-
 
     this.$nextButton = $('<button/>').text('>').on('click', function(){
-
         _this.gotoNext();
-        $(this).trigger({
-            type:'onPageChanged',
-            pageObj:_this.currentPage
-        });
-
     });
+
+
+    this.$pageFrameAvatar = $('<div class="pageFrameAvatar"/>');
+
 
 };
 Paginator.prototype.buildTable = function(){
     var _this = this;
     console.log(this.params.srEvents.length);
 
+    this.$pagesHolder = $('<div class="pagesHolder"/>');
     this.$paginatorTable.append(
-        $('<thead/>').append(
-            $('<tr/>').append(
-                $('<th/>').text('visitor id'),
-                $('<th/>').text('creation time')
-            )
-        ),
+        //$('<thead/>').append(
+        //    $('<tr/>').append(
+        //        $('<th/>').text('visitor id'),
+        //        $('<th/>').text('creation time')
+        //    )
+        //),
         $('<tfoot/>').append(
             $('<tr/>').append(
                 $('<td/>').append(
                   _this.$previousButton
+                ),
+                $('<td/>').append(
+                    this.$pagesHolder
                 ),
                 $('<td/>').append(
                     _this.$nextButton
@@ -157,56 +307,78 @@ Paginator.prototype.buildTable = function(){
     );
 
 
+
+
     return this.$paginatorTable;
 
 };
 Paginator.prototype.gotoNext = function(pageId){
 
     if(this.currentPage == this.lastPage){
-        this.currentPage = this.firstPage;
+        this.setPage(this.firstPage.params.idx);
     }
     else{
-        var currentPageIndex = this.currentPage.params.idx;
-        this.currentPage = this.pages[currentPageIndex+1];
+        this.setPage(this.currentPage.params.idx+1);
     }
 
-    console.log(this.currentPage, this.currentPage.params.idx);
 
 };
 Paginator.prototype.gotoPrevious = function(pageId){
 
     if(this.currentPage == this.firstPage){
-        this.currentPage = this.lastPage;
+        this.setPage(this.lastPage.params.idx);
     }
     else{
-        var currentPageIndex = this.currentPage.params.idx;
-        this.currentPage = this.pages[currentPageIndex-1];
+        this.setPage(this.currentPage.params.idx-1);
     }
 
-    console.log(this.currentPage, this.currentPage.params.idx);
-
-
-
 };
-Paginator.prototype.gotoPage = function(pageId){
-    this.loadPage(pageId-1);
-};
-Paginator.prototype.loadPage = function(pageId){
+Paginator.prototype.setPage = function(pageId){
 
     this.currentPage = this.pages[pageId];
 
-    console.log("current page:",this.currentPage.params.idx);
+    //console.log(this.currentPage);
 
+    this.$paginatorTable.trigger('onPageChanged');
 
 };
+Paginator.prototype.getPageFrameAvatar = function() {
+    return this.$pageFrameAvatar;
+};
+
 
 var Page = function(in_params){
     this.params = $.extend({
     }, in_params);
 
+    this.littleBros = [];
+
     this.init();
+    this.buildAvatars();
 
 };
 Page.prototype.init = function(){
 
+};
+Page.prototype.buildAvatars = function() {
+    this.$buttonAvatar = null;
+
+    var itemsInPage = this.params.range.end - this.params.range.start;
+
+    for(var i = 0; i < itemsInPage; i++){
+
+    }
+
+};
+Page.prototype.buildAvatars = function() {
+    this.$buttonAvatar = null;
+
+
+};
+Page.prototype.setPageButtonAvatar = function(in_$pageButton) {
+    this.$buttonAvatar = in_$pageButton;
+
+};
+Page.prototype.getPageButtonAvatar = function() {
+    return this.$buttonAvatar;
 };

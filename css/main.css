@@ -16,7 +16,6 @@ body .initWarning {
   font-size: larger; }
 
 #SREventManager {
-  display: inline-block;
   font-size: 10px;
   padding: 2px; }
   #SREventManager .loaderGroup > * {
@@ -55,43 +54,59 @@ body .initWarning {
     top: 0;
     left: 0;
     right: 0;
-    bottom: 0;
-    border: 1px solid blue; }
+    bottom: 0; }
     #appLayout .eventPage .utilityBar {
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
       height: 30px;
-      background-color: rgba(0, 120, 174, 0.34); }
-      #appLayout .eventPage .utilityBar > * {
-        display: inline-block;
-        vertical-align: middle; }
-      #appLayout .eventPage .utilityBar .searchTool {
-        position: absolute;
-        right: 0;
-        padding: 4px; }
-    #appLayout .eventPage #individualParticipantStreamView,
+      border-bottom: 1px solid lightblue; }
     #appLayout .eventPage #closerEventView,
-    #appLayout .eventPage #wideEventView {
+    #appLayout .eventPage #wideEventViewGrp {
       position: absolute;
       top: 30px;
       bottom: 0;
-      border: 1px solid;
       overflow-y: auto; }
+    #appLayout .eventPage #wideEventViewGrp {
+      right: 3px;
+      width: 20%; }
+      #appLayout .eventPage #wideEventViewGrp .searchTool {
+        position: absolute;
+        top: 0;
+        margin: 3px;
+        height: 30px;
+        padding: 2px;
+        border: 1px solid #d3d3d3;
+        border-radius: 7px; }
+        #appLayout .eventPage #wideEventViewGrp .searchTool > * {
+          display: inline-block;
+          vertical-align: middle;
+          line-height: 1em; }
+          #appLayout .eventPage #wideEventViewGrp .searchTool > *.fa {
+            font-size: 1.3em;
+            color: gray;
+            opacity: .5; }
+            #appLayout .eventPage #wideEventViewGrp .searchTool > *.fa:hover {
+              opacity: 1; }
+        #appLayout .eventPage #wideEventViewGrp .searchTool input[type=text] {
+          border: none;
+          padding: 0;
+          margin: 0;
+          padding-left: 5px; }
+      #appLayout .eventPage #wideEventViewGrp #wideEventView {
+        position: absolute;
+        width: 100%;
+        top: 38px;
+        bottom: 3px;
+        border: 1px solid;
+        overflow-y: auto;
+        background-color: lightyellow;
+        border-color: darkolivegreen; }
     #appLayout .eventPage #closerEventView {
       left: 0;
       border-color: green;
-      width: 50%; }
-    #appLayout .eventPage #individualParticipantStreamView {
-      right: 20%;
-      width: 30%;
-      border-color: blue; }
-    #appLayout .eventPage #wideEventView {
-      right: 0;
-      width: 20%;
-      background-color: lightyellow;
-      border-color: darkolivegreen; }
+      width: 80%; }
 
 .HorizontalLayout {
   display: table; }
@@ -139,13 +154,29 @@ body .initWarning {
 .SREventElementExtended {
   position: relative;
   z-index: 1;
-  border: 1px solid red;
-  margin: 10px;
-  padding: 7px;
+  border: 1px solid #d3d3d3;
+  margin: 30px;
+  padding: 14px;
   border-radius: 10px; }
   .SREventElementExtended.out {
     background-color: red; }
-  .SREventElementExtended .viewProductsGrp > .productImage {
+  .SREventElementExtended .inlineInfo .visitorId {
+    font-weight: bolder; }
+  .SREventElementExtended .viewProductsGrp .scarabRecomended {
+    border: 1px solid green;
+    border-radius: 4px;
+    margin: 10px;
+    padding: 10px;
+    display: inline-block;
+    background-color: #ddf4dd; }
+    .SREventElementExtended .viewProductsGrp .scarabRecomended legend {
+      display: inline-block;
+      color: forestgreen; }
+      .SREventElementExtended .viewProductsGrp .scarabRecomended legend i {
+        vertical-align: middle;
+        color: #be9e63;
+        font-size: 2em; }
+  .SREventElementExtended .viewProductsGrp .productImage {
     display: inline-block;
     width: 80px;
     height: 100px;
@@ -183,33 +214,53 @@ body .initWarning {
   position: relative;
   z-index: 1;
   padding: 2px;
-  font-size: 10px;
-  background-color: rgba(255, 255, 0, 0.2);
-  margin: 1px; }
+  font-size: 11px;
+  cursor: pointer; }
   .SREventElement.IN {
     font-weight: bold; }
   .SREventElement .inlineInfo > * {
     display: inline-block;
     padding-left: 1px;
     padding-right: 1px; }
+    .SREventElement .inlineInfo > *.visitorId {
+      width: 90%; }
+    .SREventElement .inlineInfo > *.fa {
+      min-width: 1em;
+      font-size: 1.2em;
+      padding: 2px; }
+      .SREventElement .inlineInfo > *.fa.fa-bug {
+        color: green; }
+      .SREventElement .inlineInfo > *.fa.fa-search {
+        font-size: 1.3em;
+        color: blue;
+        opacity: 0; }
+  .SREventElement .inlineInfo:hover {
+    background-color: rgba(255, 165, 0, 0.37); }
+    .SREventElement .inlineInfo:hover .fa-search {
+      opacity: 1; }
+  .SREventElement.selected {
+    background-color: rgba(75, 255, 65, 0.21); }
 
-.timeStamp .srDate {
-  text-decoration: underline; }
-  .timeStamp .srDate > .date {
-    display: inline-block; }
-    .timeStamp .srDate > .date > span:after {
-      content: "/";
-      color: gray; }
-    .timeStamp .srDate > .date > span:last-child:after {
-      content: "";
-      padding-right: 2px; }
-  .timeStamp .srDate > .time {
-    display: inline-block; }
-    .timeStamp .srDate > .time > span:after {
-      content: ":";
-      color: gray; }
-    .timeStamp .srDate > .time > span:last-child:after {
-      content: ""; }
+.timestamp {
+  float: right; }
+  .timestamp .srDate {
+    margin: 5px; }
+    .timestamp .srDate > .date {
+      display: inline-block; }
+      .timestamp .srDate > .date > span:after {
+        content: "/";
+        margin: 2px;
+        color: gray; }
+      .timestamp .srDate > .date > span:last-child:after {
+        content: "";
+        padding-right: 2px; }
+    .timestamp .srDate > .time {
+      display: inline-block; }
+      .timestamp .srDate > .time > span:after {
+        content: ":";
+        color: gray; }
+      .timestamp .srDate > .time > span:last-child:after {
+        content: ""; }
 
 #smallViewBuffer {
   position: fixed;
@@ -218,5 +269,30 @@ body .initWarning {
   width: 100%;
   background-color: rgba(0, 62, 255, 0.52);
   z-index: 2; }
+
+.devOptions {
+  width: 1%; }
+
+#Paginator .pagesHolder {
+  max-width: 600px;
+  height: 26px;
+  overflow-x: auto;
+  white-space: nowrap; }
+#Paginator .pageIcon {
+  display: inline-block;
+  background-color: white;
+  border: 1px solid #d3d3d3;
+  border-radius: 5px;
+  text-align: center;
+  cursor: pointer; }
+  #Paginator .pageIcon.selected {
+    background-color: green; }
+
+.pageFrameAvatar {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 100%;
+  min-height: 10px; }
 
 /*# sourceMappingURL=main.css.map */
