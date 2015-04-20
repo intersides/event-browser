@@ -45,3 +45,5 @@ Added `srTimeStampToDate` to convert timestamp into data object and/or jquery el
 
 ## RECENT MODIFICATIONS
 Apr 18 - Improving performance by converting some jQuery into vanilla javascript.
+
+Apr 20 - Improving performance by converting some jQuery into vanilla javascript for event in its detail form. Preparing for filtering for product id.
