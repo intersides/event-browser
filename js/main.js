@@ -17,6 +17,8 @@ var SREventBrowser = function(in_params){
     console.info(this.httpServer, this.wsServer);
     this.webSocket = null;
 
+    this.currentFilter = null;
+
     this.eventManager = null;
 
     this.init();
@@ -30,6 +32,7 @@ SREventBrowser.prototype.init = function(){
     this.eventManager = new SREventManager({});
 
     this.buildInterfaceLayout();
+
     this.bindDomEvents();
 
 
@@ -45,6 +48,13 @@ SREventBrowser.prototype.init = function(){
         console.log("*", cb_connectionId);
 
     });
+
+    //trigger init events
+    this.$app.trigger({
+        type:'onSelectedFilter',
+        filter:'uid'
+    });
+
 };
 SREventBrowser.prototype.initAvatar = function(){
     return $("body").attr('id', 'SREventBrowser').empty();
@@ -57,10 +67,11 @@ SREventBrowser.prototype.redrawDetailedElements = function(inBufferElements){
 
     this.$closerEventView.empty();
     for(var elemIdx = 0; elemIdx < inBufferElements.length; elemIdx++){
-        var $a = this.createDetailAvatar(inBufferElements[elemIdx]);
+        var detailAvatar = this.createDetailAvatar(inBufferElements[elemIdx]);
 
         //console.log($a);
-        this.$closerEventView.append($a);
+        this.$closerEventView.append(detailAvatar);
+
     }
 
 
@@ -68,6 +79,9 @@ SREventBrowser.prototype.redrawDetailedElements = function(inBufferElements){
 SREventBrowser.prototype.createDetailAvatar = function(elemObj){
 
     //console.log(this.params);
+
+    var SREventElementExtended = document.createElement('div');
+        SREventElementExtended.className = "SREventElementExtended";
 
     var $SREventElementExtended = $("<div class='SREventElementExtended'/>");
 
@@ -81,7 +95,10 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
 
 
         //VIEWED PRODUCTS
-        var $viewProductsGrp = $("<div class='viewProductsGrp'/>");
+        var viewProductGrp = document.createElement('div');
+        viewProductGrp.className = "viewProductsGrp";
+
+        //var $viewProductsGrp = $("<div class='viewProductsGrp'/>");
 
         if(typeof viewedProductsArray != "undefined"){
 
@@ -91,25 +108,43 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
 
                     var prodId = viewedProductsArray[productIdx].id;
 
-                    var imgLink = getImageLink(prodId);
-                    var $imgTag = $('<div class="productImage" style="background-image: url('+imgLink+')"/>');
+                    var imgTag = document.createElement('div');
+                        imgTag.className = "productImage";
+                        imgTag.style.backgroundImage = "url("+getImageLink(prodId)+")";
+
+                    var prodIdElem = document.createElement('div');
+                    prodIdElem.className = 'prodIdElem';
+                    prodIdElem.textContent = prodId;
+
+                    var imgTagGrp = document.createElement('div');
+                    imgTagGrp.className = "imgTagGrp";
+
+                    imgTagGrp.appendChild(imgTag);
+                    imgTagGrp.appendChild(prodIdElem);
+
 
                     var prodf = viewedProductsArray[productIdx].f;
                     //console.log(prodf);
 
                     if(typeof prodf !== "undefined"){
 
-                        $('<fieldset class="scarabRecomended"/>').append(
-                            $('<legend/>').append(
-                                $('<i class="fa fa-bug"/>'),
-                                $('<span/>').text(prodf)
-                            ),
-                            $imgTag
-                        ).appendTo($viewProductsGrp);
+                        var scarabRecommendedFieldSet = document.createElement('fieldset');
+                            scarabRecommendedFieldSet.className = "scarabRecomended";
+
+                        var scarabRecommendedIconLegend = document.createElement('legend');
+                            scarabRecommendedIconLegend.className='fa fa-bug';
+                        var productF = document.createElement('div');
+                            productF.textContent = prodf;
+
+                        scarabRecommendedFieldSet.appendChild(scarabRecommendedIconLegend);
+                        scarabRecommendedFieldSet.appendChild(productF);
+                        scarabRecommendedFieldSet.appendChild(imgTagGrp);
+
+                        viewProductGrp.appendChild(scarabRecommendedFieldSet);
 
                     }
                     else{
-                        $imgTag.appendTo($viewProductsGrp);
+                        viewProductGrp.appendChild(imgTagGrp);
                     }
 
 
@@ -124,41 +159,49 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
         //RELATED
 
 
-        var $impressionGrp = $("<div class='impressionGrp'/>")
-
+        var impressionGrp = document.createElement('div');
+            impressionGrp.className ='impressionGrp';
 
         for(var idx in impressionsArray){
 
             var impressionObj = impressionsArray[idx];
             var featureId = impressionObj.feature_id;
 
-            var $impressionObject = $("<div class='impressionObject'/>")
+            var impressionObjectElem = document.createElement('div');
+            impressionObjectElem.className = 'impressionObject';
 
-            $impressionGrp.append(
-                $impressionObject
-            );
+            impressionGrp.appendChild(impressionObjectElem);
 
-            $impressionObject.append(
-                $('<div/>').text(featureId)
-            );
+            var featureIdElem = document.createElement('div');
+            featureIdElem.textContent = featureId;
+            impressionObjectElem.appendChild(featureIdElem);
 
             var items = impressionObj.item_impressions;
             if(items.length){
 
-                var $impressionItemsGrp =
-                    $("<div class='itemsGrp'/>").appendTo($impressionObject);
+                var impressionItemsGrp = document.createElement('div');
+                impressionItemsGrp.className ='itemsGrp';
 
+                impressionObjectElem.appendChild(impressionItemsGrp);
 
                 for(var itemIdx = 0; itemIdx < items.length; itemIdx++){
                     var itemId = items[itemIdx];
 
-                    var imgLink = getImageLink(itemId);
+                    var imgTag2 = document.createElement('div');
+                    imgTag2.className = "productImage";
+                    imgTag2.style.backgroundImage = "url("+getImageLink(itemId)+")";
 
-                    //console.log(itemId, imgLink);
-                    //$('<div class="productImage"/>').data('imgLink', null).appendTo($impressionItemsGrp);
+                    var prodIdElem2 = document.createElement('div');
+                    prodIdElem2.className = 'prodIdElem';
+                    prodIdElem2.textContent = itemId;
 
-                    $('<div class="productImage" style="background-image: url('+imgLink+')"/>').appendTo($impressionItemsGrp);
+                    var imgTagGrp2 = document.createElement('div');
+                    imgTagGrp2.className = "imgTagGrp";
 
+                    imgTagGrp2.appendChild(imgTag2);
+                    imgTagGrp2.appendChild(prodIdElem2);
+
+                    impressionItemsGrp.appendChild(imgTagGrp2);
 
                 }
             }
@@ -169,21 +212,39 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
         }
 
         //process time stamp
-        var date = srTimeStampToDate({srTimestamp:timestamp, format:"jquery"});
-        //var date = timestamp;
+        var htmlDate = srTimeStampToDate({srTimestamp:timestamp, format:"html"});
+
+        var inlineInfo = document.createElement('div');
+            inlineInfo.className = "inlineInfo";
+        var visitorIdElem = document.createElement('span');
+            visitorIdElem.className = "visitorId";
+            visitorIdElem.textContent = visitorId;
+        //console.log(visitorId);
 
 
-         $SREventElementExtended.append(
-             $('<div class="inlineInfo"/>').append(
-             $('<span class="visitorId"/>').text(visitorId),
-             $('<span class="timestamp"/>').html(date)
-             ),
-             $viewProductsGrp,
-             $impressionGrp
+        var timestampElem = document.createElement('span');
+            timestampElem.className = "timestamp";
+            timestampElem.appendChild(htmlDate);
 
-         ).attr('id', visitorId);
 
-        return $SREventElementExtended;
+        SREventElementExtended.appendChild(inlineInfo);
+        SREventElementExtended.appendChild(visitorIdElem);
+        SREventElementExtended.appendChild(timestampElem);
+        SREventElementExtended.appendChild(viewProductGrp);
+        SREventElementExtended.appendChild(impressionGrp);
+
+        //$SREventElementExtended.append(
+        //     $('<div class="inlineInfo"/>').append(
+        //     $('<span class="visitorId"/>').text(visitorId),
+        //     $('<span class="timestamp"/>').html(date)
+        //     ),
+        //     $viewProductsGrp,
+        //     $impressionGrp
+        //
+        // ).attr('id', visitorId);
+
+        //return $SREventElementExtended;
+        return SREventElementExtended;
     }
     else{
         return null;
@@ -353,12 +414,10 @@ SREventBrowser.prototype.buildSearchTool = function(){
 
     var _this = this;
 
-    var $st =
-        $('<div class="searchTool"/>').append(
-        //$('<label for="filter"/>').text('filter:'),
-        $('<input id="filter" type="text" placeholder="search..."/>').on('keyup change', function(event){
+    return $('<div class="searchTool"/>').append(
+            $('<input id="filter" type="text" placeholder="filter..."/>').on('keyup change', function(event){
             var val = $(this).val();
-            var findings = _this.eventManager.filterFor(val);
+            var findings = _this.eventManager.filterFor(val, _this.currentFilter);
 
             _this.$wideEventView.empty();
             _this.$devOptions.empty();
@@ -381,33 +440,46 @@ SREventBrowser.prototype.buildSearchTool = function(){
 
 
         }),
-        $('<i class="fa fa-times-circle"/>').on('click', function(){
-            $("#filter").val("").trigger('change')
-        })
+            $('<i class="fa fa-times-circle"/>').on('click', function(){
+                $("#filter").val("").trigger('change')
+            }),
+            $('<div class="radio-filters"/>').append(
+                $('<i class="fa fa-user" data-filtertype="uid"/>').on('click', function(){
+                    $(this).trigger({
+                        type:'onSelectedFilter',
+                        filter:'uid'
+                    });
+
+                }),
+                $('<i class="fa fa-book"  data-filtertype="pid"/>').on('click', function(){
+                    $(this).trigger({
+                        type:'onSelectedFilter',
+                        filter:'pid'
+                    });
+
+                })
+            )
     );
 
-    return $st;
 
 };
+SREventBrowser.prototype.setSearchFilter = function(in_params){
 
+    var filter = in_params.filter;
+    if(typeof filter != "undefined"){
+
+        $('.radio-filters i.fa').removeClass('active');
+        $('.radio-filters i.fa[data-filtertype='+filter+']').addClass('active');
+    }
+    else{
+        console.error('filter udefiend');
+    }
+
+};
 SREventBrowser.prototype.buildViewNavigator = function(){
-
     var _this = this;
 
     this.$smallViewBuffer = $('<div id="smallViewBuffer"/>');
-    //this.$wideEventView.append(this.$smallViewBuffer);
-
-    //this.$smallViewBuffer.draggable({
-    //    containment: "parent",
-    //    stop: function( event, ui ){
-    //        _this.bufferControl();
-    //    }
-    //
-    //});
-    //
-    //this.adjustMiniNavigatorSize();
-
-
 };
 SREventBrowser.prototype.buildInterfaceLayout = function(){
 
@@ -462,30 +534,26 @@ SREventBrowser.prototype.buildInterfaceLayout = function(){
     var bufferBottom = bufferTop+this.$creationBuffer.outerHeight();
 
 };
-SREventBrowser.prototype.adjustMiniNavigatorSize = function() {
 
-    //assign size to smallView buffer based on window visible size
-    var w = this.$closerEventView.outerWidth();
-    var h = this.$closerEventView.outerHeight();
+SREventBrowser.prototype.bufferControlCloserView = function() {
 
-    //this.$smallViewBuffer.css({position:"absolute"});
+    var mTop = this.$closerEventView.offset().top;
 
-    //current smallView
-    var smallViewW = this.$wideEventView.outerWidth();
-    var smallViewOffset = this.$wideEventView.offset();
-    //console.log(smallViewOffset);
+    $('.SREventElementExtended').each(function() {
 
-    this.$smallViewBuffer.css({
-        height:smallViewW*(h/w)+"px",
-        width:smallViewW,
-        top:smallViewOffset.top,
-        left:smallViewOffset.left
+        var $SREX = $(this);
+
+        if($SREX.attr('id') == "4F6B6D2E72F75AA7"){
+            var thisTop = $SREX.offset().top;
+            var thisHeight = $SREX.outerHeight();
+            if(thisTop+thisHeight < mTop){
+                console.log('hide');
+            }
+        }
+
     });
 
-    //this.$smallViewBuffer.css({position:"fixed"});
-
 };
-
 SREventBrowser.prototype.bufferControl = function() {
 
     return;
@@ -551,18 +619,18 @@ SREventBrowser.prototype.bufferControl = function() {
 SREventBrowser.prototype.bindDomEvents = function(){
     var _this = this;
 
-    window.onresize = function(){
-        //_this.adjustMiniNavigatorSize();
-    };
+    window.onresize = function(){};
 
-    //onEmptyFilterResults
+    this.$app.on('onSelectedFilter', function(evt){
+        var filter = evt.filter;
+        _this.setSearchFilter({filter:filter});
+        _this.currentFilter = filter;
+    });
 
     this.$app.on('onEmptyFilterResults', function(evt){
       var $filterInput = $("#filter");
       $filterInput.parent().addClass("notFound");
     });
-
-
 
     this.$app.on('onEventsBunchReadyToDraw', function(evt){
         //console.log(evt.eventBunch);
@@ -611,6 +679,19 @@ SREventBrowser.prototype.bindDomEvents = function(){
             // do something
             _this.bufferControl();
         }, 100));
+    });
+
+    this.$closerEventView.on('scroll', function() {
+
+        /*
+        clearTimeout($.data(this, 'scrollTimer'));
+        $.data(this, 'scrollTimer', setTimeout(function() {
+            // do something
+        }, 100));
+        */
+
+        _this.bufferControlCloserView();
+
     });
 
 
@@ -792,3 +873,4 @@ SREventBrowser.prototype.openConnection = function(in_host){
     };
 
 };
+

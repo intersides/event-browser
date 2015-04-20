@@ -81,6 +81,57 @@ var srTimeStampToDate = function (in_params) {
                 )
             }break;
 
+            case "html": {
+
+                var srDate = document.createElement('div');
+                    srDate.className = "srDate";
+
+                var dateElem = document.createElement('span');
+                dateElem.className = "date";
+                
+                var yearElem = document.createElement('span');
+                yearElem.className = "year";
+                yearElem.textContent = year;
+
+                var monthElem = document.createElement('span');
+                monthElem.className = "month";
+                monthElem.textContent = month;
+
+                var dayElem = document.createElement('span');
+                dayElem.className = "day";
+                dayElem.textContent = day;
+
+                dateElem.appendChild(yearElem);
+                dateElem.appendChild(monthElem);
+                dateElem.appendChild(dayElem);
+
+                var timeElem = document.createElement('span');
+                timeElem.className = "time";
+
+                var hourElem = document.createElement('span');
+                hourElem.className = "hour";
+                hourElem.textContent = hour;
+
+                var minutesElem = document.createElement('span');
+                minutesElem.className = "minutes";
+                minutesElem.textContent = minutes;
+
+                var secondsElem = document.createElement('span');
+                secondsElem.className = "seconds";
+                secondsElem.textContent = seconds;
+
+                timeElem.appendChild(hourElem);
+                timeElem.appendChild(minutesElem);
+                timeElem.appendChild(secondsElem);
+
+                srDate.appendChild(dateElem);
+                srDate.appendChild(timeElem);
+
+                returningDate = srDate;
+
+
+            }break;
+
             default:{
                 console.warn("date formatting not recognized, using predefined format");
                 //keep the above default

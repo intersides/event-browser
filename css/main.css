@@ -70,7 +70,7 @@ body .initWarning {
       overflow-y: auto; }
     #appLayout .eventPage #wideEventViewGrp {
       right: 3px;
-      width: 20%; }
+      width: 220px; }
       #appLayout .eventPage #wideEventViewGrp .searchTool {
         position: absolute;
         top: 0;
@@ -89,6 +89,13 @@ body .initWarning {
             opacity: .5; }
             #appLayout .eventPage #wideEventViewGrp .searchTool > *.fa:hover {
               opacity: 1; }
+          #appLayout .eventPage #wideEventViewGrp .searchTool > *.radio-filters > i.fa {
+            display: inline-block;
+            padding: 2px;
+            opacity: .5; }
+            #appLayout .eventPage #wideEventViewGrp .searchTool > *.radio-filters > i.fa.active {
+              opacity: 1;
+              color: dodgerblue; }
         #appLayout .eventPage #wideEventViewGrp .searchTool input[type=text] {
           border: none;
           padding: 0;
@@ -111,7 +118,7 @@ body .initWarning {
     #appLayout .eventPage #closerEventView {
       left: 0;
       border-color: green;
-      width: 80%; }
+      right: 220px; }
 
 .HorizontalLayout {
   display: table; }
@@ -181,28 +188,26 @@ body .initWarning {
         vertical-align: middle;
         color: #be9e63;
         font-size: 2em; }
-  .SREventElementExtended .viewProductsGrp .productImage {
-    display: inline-block;
-    width: 80px;
-    height: 100px;
-    margin: 3px;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center center;
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    vertical-align: middle;
-    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.63); }
-  .SREventElementExtended .itemsGrp > .productImage {
-    display: inline-block;
-    width: 80px;
-    height: 100px;
-    margin: 3px;
-    background-repeat: no-repeat;
-    background-size: contain;
-    background-position: center center;
-    border: 1px solid rgba(0, 0, 0, 0.4);
-    vertical-align: middle;
-    box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.63); }
+  .SREventElementExtended .imgTagGrp {
+    display: inline-block; }
+    .SREventElementExtended .imgTagGrp .productImage {
+      display: block;
+      width: 80px;
+      height: 100px;
+      margin: 3px;
+      background-repeat: no-repeat;
+      background-size: contain;
+      background-position: center center;
+      border: 1px solid rgba(0, 0, 0, 0.4);
+      vertical-align: middle;
+      box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.63); }
+    .SREventElementExtended .imgTagGrp .prodIdElem {
+      font-size: smaller;
+      text-align: center;
+      opacity: .5; }
+      .SREventElementExtended .imgTagGrp .prodIdElem:hover {
+        opacity: 1;
+        cursor: pointer; }
   .SREventElementExtended .bottomMarker,
   .SREventElementExtended .topMarker {
     position: absolute;
@@ -228,7 +233,7 @@ body .initWarning {
     padding-left: 1px;
     padding-right: 1px; }
     .SREventElement .inlineInfo > *.visitorId {
-      width: 90%; }
+      width: 120px; }
       .SREventElement .inlineInfo > *.visitorId .visitorIdValue .inFilter {
         display: inline-block;
         background-color: yellow; }

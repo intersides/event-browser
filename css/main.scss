@@ -115,7 +115,7 @@ body{
 
     #wideEventViewGrp{
       right: 3px;
-      width: 20%;
+      width: 220px;
 //      border: 2px solid red;
 
       .searchTool{
@@ -137,6 +137,20 @@ body{
             &:hover{
               opacity: 1;
             }
+          }
+
+          &.radio-filters{
+
+            >i.fa{
+              display: inline-block;
+              padding: 2px;
+              opacity: .5;
+              &.active{
+                opacity: 1;
+                color: dodgerblue;
+              }
+            }
+
           }
         }
         input[type=text]{
@@ -178,7 +192,7 @@ body{
     #closerEventView{
       left: 0;
       border-color:green;
-      width:80%;
+      right:220px;
     }
 
   }
@@ -303,8 +317,29 @@ body{
 
     }
 
+//    .imgTagGrp{
+//
+//      .productImage{
+//        display: inline-block;
+//        width: 80px;
+//        height: 100px;
+//        margin: 3px;
+//        background-repeat: no-repeat;
+//        background-size: contain;
+//        background-position: center center;
+//        border: 1px solid rgba(0, 0, 0, 0.4);
+//        vertical-align: middle;
+//        box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.63);
+//      }
+//    }
+
+  }
+
+  .imgTagGrp{
+    display: inline-block;
+
     .productImage{
-      display: inline-block;
+      display: block;
       width: 80px;
       height: 100px;
       margin: 3px;
@@ -314,24 +349,24 @@ body{
       border: 1px solid rgba(0, 0, 0, 0.4);
       vertical-align: middle;
       box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.63);
+
+    }
+
+    .prodIdElem{
+      font-size: smaller;
+      text-align: center;
+      opacity: .5;
+      &:hover{
+        opacity: 1;
+        cursor: pointer;
+      }
     }
   }
 
+
   .itemsGrp{
 
-    >.productImage{
-      display: inline-block;
-      width: 80px;
-      height: 100px;
-      margin: 3px;
-      background-repeat: no-repeat;
-      background-size: contain;
-      background-position: center center;
-      border: 1px solid rgba(0, 0, 0, 0.4);
-      vertical-align: middle;
-      box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.63);
-//      height: 140px;
-    }
+
   }
 
   .bottomMarker,
@@ -368,7 +403,9 @@ body{
       padding-left: 1px;
       padding-right: 1px;
       &.visitorId{
-        width: 90%;
+
+        width: 120px;
+
         .visitorIdValue .inFilter{
           display: inline-block;
           background-color: yellow;

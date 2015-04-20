@@ -151,38 +151,86 @@ SREventManager.prototype.addSREvent = function(in_eventObj){
     this.currentSREvent = in_eventObj;
 
 };
-SREventManager.prototype.filterFor = function(in_val){
+SREventManager.prototype.filterFor = function(in_val, in_filterType){
 
 
-    //if(in_val.length >= 1){
+    var findings = [];
 
-        var findings = [];
+    //console.log(in_val);
 
-        //console.log(in_val);
-
-        var valueToSearch = in_val.toUpperCase();
+    var valueToSearch = in_val.toUpperCase();
 
 
-        for(var i = 0; i < this.srEvents.length; i++){
+
+    //filter type
+    var whatToFilter = null;
+    var subObjects = null;
+    switch(in_filterType){
+
+        case 'pid':{
+            //viewed_products
+            whatToFilter = "viewed_products";
+            subObjects = 'id';
+
+        }break;
+
+        //finding by ID is DEFAULT
+        default:
+        case "uid":{
+            whatToFilter = "visitor_id";
+        }break;
+    }
+
+    for(var i = 0; i < this.srEvents.length; i++){
 
 
-            var evtObj = this.srEvents[i];
+        var evtObj = this.srEvents[i];
+        //if(i < 10){
+        //    console.log();
+        //}
 
-            var id = evtObj.visitor_id.toUpperCase();
+        var valueToFilter = evtObj[whatToFilter];
 
-            //finding by ID
-            if(id.indexOf(valueToSearch) != -1){
-                findings.push(evtObj);
+        console.log(Object.prototype.toString.call(valueToFilter) === '[object Array]');
+
+        if(typeof valueToFilter !== "undefined"){
+
+            if(Object.prototype.toString.call(valueToFilter) === '[object Array]'){
+
+                if(subObjects != null){
+                    for(var j = 0; j < valueToFilter.length; j++){
+
+                        var deepValueToFilter = valueToFilter[j][subObjects];
+
+                        if(deepValueToFilter.indexOf(valueToSearch) != -1){
+                            findings.push(evtObj);
+                        }
+
+                    }
+                }
+                else{
+                    console.error('no subObject for deep filter');
+                }
+
+            }
+            else{
+
+                valueToFilter = valueToFilter.toUpperCase();
+
+                if(valueToFilter.indexOf(valueToSearch) != -1){
+                    findings.push(evtObj);
+
+                }
+
             }
 
         }
 
-        return findings;
 
-    //}
-    //else{
-    //    return this.srEvents;
-    //}
+
+    }
+
+    return findings;
 
 };
 SREventManager.prototype.prepareReceivingEvent = function(in_totalEvents){
