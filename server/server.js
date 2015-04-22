@@ -5,6 +5,9 @@ var dev = false;
 var maxEvent = 500;
 
 var colors = require('colors');
+
+var nodemailer = require('nodemailer');
+
 var CircularJSON = require('circular-json');
 var favicon = require('serve-favicon');
 var express = require('express');
@@ -124,9 +127,54 @@ wsServer.on('connection', function(ws){
 
             }break;
 
+            case "onShareSelected":{
+                console.log('onShareSelected', clientData);
+                console.log(clientData['shareWith']);
+                console.log(clientData['eventObj']);
+
+                // create reusable transporter object using SMTP transport
+                var transporter = nodemailer.createTransport({
+                    service: 'Gmail',
+                    auth: {
+                        user: 'm.falsitta@genioo.com',
+                        pass: 'chiave8871'
+                    }
+                });
+
+                // NB! No need to recreate the transporter object. You can use
+                // the same transporter object for all e-mails
+
+                // setup e-mail data with unicode symbols
+                var mailOptions = {
+                    from: 'Marco Falsitta <m.falsitta@genioo.com>', // sender address
+                    to: 'marco.falsitta@me.com, marco.falsitta@mac.com', // list of receivers
+                    subject: 'Hello ✔', // Subject line
+                    text: 'Hello world ✔', // plaintext body
+                    html: '<b>Hello world ✔</b>' // html body
+                };
+
+                // send mail with defined transport object
+                transporter.sendMail(mailOptions, function(error, info){
+                    if(error){
+                        console.log(error);
+                    }else{
+                        console.log('Message sent: ' + info.response);
+                    }
+                });
+
+                setTimeout(function timeout() {
+                    ws.send(CircularJSON.stringify({msgType:"onShareSelected", msg:{sent:true}}));
+                    console.log("onShareSelected have been sent !".yellow);
+                }, 500);
+
+
+
+
+            }break;
+
 
             default:{
-                console.log('un handle client event type'.red);
+                console.log('un-handle client event type'.red);
 
 
             }break;

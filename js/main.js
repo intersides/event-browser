@@ -78,6 +78,8 @@ SREventBrowser.prototype.redrawDetailedElements = function(inBufferElements){
 };
 SREventBrowser.prototype.createDetailAvatar = function(elemObj){
 
+    var _this = this;
+
     //console.log(this.params);
 
     var SREventElementExtended = document.createElement('div');
@@ -221,6 +223,49 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
             visitorIdElem.textContent = visitorId;
         //console.log(visitorId);
 
+        var shareIconGrp = document.createElement('div');
+            shareIconGrp.className = 'shareIconGrp';
+
+        var shareIcon = document.createElement('i');
+            shareIcon.className = 'shareIcon fa fa-share-alt-square';
+            shareIcon.title = "click to share with collegue";
+            shareIcon.elemObj = elemObj;
+            shareIcon.onclick = function(){
+                console.log(this.elemObj);
+
+
+                var $dialog = $('<div id="shareDialog" title="share item"/>');
+                $dialog.data().elemObj = this.elemObj;
+                $dialog.append(
+                    $('<div/>').text(JSON.stringify(this.elemObj))
+                );
+
+                _this.$app.append($dialog);
+
+                $dialog.dialog({
+                    modal: true,
+                    buttons: {
+                        Ok: function () {
+                            var elemObj = $(this).data('elemObj');
+                            console.log(elemObj);
+
+                            var paramsForServer = {
+                                eventObj : elemObj,
+                                shareWith:['marco.falsitta@me.com', 'm.falsitta@genioo.com']
+                            };
+                            _this.webSocket.send(
+                                JSON.stringify({clientEvent:'onShareSelected', data:paramsForServer})
+                            );
+
+                            $(this).dialog("close");
+                            $(this).remove();
+                        }
+                    }
+                });
+
+
+            };
+        shareIconGrp.appendChild(shareIcon);
 
         var timestampElem = document.createElement('span');
             timestampElem.className = "timestamp";
@@ -229,6 +274,7 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
 
         SREventElementExtended.appendChild(inlineInfo);
         SREventElementExtended.appendChild(visitorIdElem);
+        SREventElementExtended.appendChild(shareIconGrp);
         SREventElementExtended.appendChild(timestampElem);
         SREventElementExtended.appendChild(viewProductGrp);
         SREventElementExtended.appendChild(impressionGrp);

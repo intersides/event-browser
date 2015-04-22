@@ -254,6 +254,17 @@ body .initWarning {
   .SREventElement.selected {
     background-color: rgba(75, 255, 65, 0.21); }
 
+.shareIconGrp {
+  float: right;
+  padding: 1px;
+  margin: 5px; }
+  .shareIconGrp i.fa {
+    display: inline-block;
+    cursor: pointer;
+    opacity: .5; }
+    .shareIconGrp i.fa:hover {
+      opacity: 1; }
+
 .timestamp {
   float: right; }
   .timestamp .srDate {
