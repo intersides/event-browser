@@ -2,6 +2,24 @@
  * Created by marco.falsitta on 04/04/15.
  */
 
+var collegues = {
+    marco01:{
+        firstName:"Marco",
+        lastName:"Falsitta",
+        email:"marco.falsitta@icloud.com"
+    },
+    marco02:{
+        firstName:"Marco",
+        lastName:"Falsitta",
+        email:"marco.falsitta@me.com"
+    },
+    marco03:{
+        firstName:"Marco",
+        lastName:"Falsitta",
+        email:"m.falsitta@genioo.com"
+    }
+}
+
 var SREventBrowser = function(in_params){
 
     this.params = $.extend({
@@ -88,6 +106,9 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
     var $SREventElementExtended = $("<div class='SREventElementExtended'/>");
 
     if(typeof elemObj !== "undefined"){
+
+
+        SREventElementExtended.srId = elemObj.random;
 
         var visitorId =elemObj.visitor_id;
         var timestamp =elemObj.timestamp;
@@ -234,24 +255,89 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
                 console.log(this.elemObj);
 
 
-                var $dialog = $('<div id="shareDialog" title="share item"/>');
+                var $dialog = $('<div id="shareDialog" title="share this item"/>');
                 $dialog.data().elemObj = this.elemObj;
                 $dialog.append(
-                    $('<div/>').text(JSON.stringify(this.elemObj))
+                    $('<div/>').html("<p>Choose the collegues to which you want to share this item. They will receive it as an email.</p>"),
+                    (function(_$dialog){
+                        var $userList = $('<ul/>');
+
+                        $userList.append(
+
+                            (function(c_collegues){
+
+                                var colleguesItems = [];
+                                for(var collegueId in c_collegues){
+                                    if(c_collegues.hasOwnProperty(collegueId) ){
+
+                                        console.log(collegueId, c_collegues[collegueId]);
+
+                                        if(typeof _$dialog.data().collegues == "undefined"){
+                                            _$dialog.data().collegues = {};
+                                        }
+                                        _$dialog.data().collegues[collegueId] = c_collegues[collegueId];
+
+                                        colleguesItems.push(
+
+                                            $('<li/>').append(
+                                                $('<input type="checkbox" checked/>').on('click', function(){
+
+
+                                                    if($(this).is(':checked')){
+
+                                                        (function(c_collegueId, c_collegueObj){
+                                                            _$dialog.data().collegues[c_collegueId] = c_collegueObj;
+
+                                                        }(collegueId, c_collegues[collegueId]))
+                                                    }
+                                                    else{
+                                                        (function(c_collegueId){
+                                                            delete _$dialog.data().collegues[c_collegueId];
+                                                        }(collegueId))
+
+                                                    }
+
+                                                    console.log(_$dialog.data().collegues);
+
+                                                }),
+                                                $('<label/>').text(
+                                                    c_collegues[collegueId].firstName+' '+
+                                                    c_collegues[collegueId].firstName+'('+c_collegues[collegueId].email+')')
+                                            )
+                                        )
+
+
+                                    }
+                                }
+
+                                return colleguesItems;
+
+                            }(collegues))
+
+
+                        );
+
+                        return $userList
+                    }($dialog)),
+                    $('<div class="objectToSend"/>').append(
+                        $('<p/>').text(JSON.stringify(this.elemObj, null, 2))
+                    )
                 );
 
                 _this.$app.append($dialog);
 
                 $dialog.dialog({
+                    minWidth:510,
+                    minHeight:400,
                     modal: true,
                     buttons: {
                         Ok: function () {
-                            var elemObj = $(this).data('elemObj');
-                            console.log(elemObj);
+                            var collegues = $(this).data().collegues;
+                            var elemObj = $(this).data().elemObj;
 
                             var paramsForServer = {
-                                eventObj : elemObj,
-                                shareWith:['marco.falsitta@me.com', 'm.falsitta@genioo.com']
+                                eventObj :elemObj,
+                                shareWith:collegues
                             };
                             _this.webSocket.send(
                                 JSON.stringify({clientEvent:'onShareSelected', data:paramsForServer})
@@ -694,7 +780,8 @@ SREventBrowser.prototype.bindDomEvents = function(){
 
             _this.paginator = new Paginator(paginationParams);
             var $pageFrameAvatar = _this.paginator.getPageFrameAvatar();
-            _this.$wideEventView.append($pageFrameAvatar);
+            var $viasibleItemsFrame = _this.paginator.getViasibleItemsFrame();
+            _this.$wideEventView.append($pageFrameAvatar, $viasibleItemsFrame);
 
             _this.eventManager.buildEventUI(evt.eventBunch, function(){
 
@@ -729,14 +816,45 @@ SREventBrowser.prototype.bindDomEvents = function(){
 
     this.$closerEventView.on('scroll', function() {
 
-        /*
+        var _closerEventView = this;
+
         clearTimeout($.data(this, 'scrollTimer'));
         $.data(this, 'scrollTimer', setTimeout(function() {
-            // do something
-        }, 100));
-        */
 
-        _this.bufferControlCloserView();
+
+            $('.SREventElement.selected').css({
+                "background":"rgba(75, 255, 65, 0.21)"
+            });
+
+            for(var childIdx = 0; childIdx < _closerEventView.children.length; childIdx++){
+                var srEventElementExtended = _closerEventView.children[childIdx];
+                var elementInRange = portionOfVisibleElement(srEventElementExtended, _closerEventView);
+                if(elementInRange){
+                    //SREventElementExtended.srId
+                    var elemntId = elementInRange.element.srId;
+
+                    if(elementInRange.coverPart){
+                        console.log(elementInRange.coverPart, elementInRange.percent);
+                        $('#'+elemntId).css({
+                            background: "-webkit-repeating-linear-gradient("+elementInRange.coverPart+", rgba(75, 255, 65, 0.21) 0%, rgba(75, 255, 65, 0.21) "+elementInRange.percent+"%, rgba(20, 55, 255, 0.21) "+elementInRange.percent+"%, rgba(20, 55, 255, 0.21) 100%)"
+                        });
+                    }
+                    else{
+                        //full element
+                        console.log("full", elemntId);
+
+                        $('#'+elemntId).css({
+                            background: "-webkit-repeating-linear-gradient(rgba(20, 55, 255, 0.21) 0%, rgba(20, 55, 255, 0.21) 100%)"
+                        });
+
+                    }
+                }
+            }
+
+
+        }, 10));
+
+        //_this.bufferControlCloserView();
 
     });
 
@@ -920,3 +1038,63 @@ SREventBrowser.prototype.openConnection = function(in_host){
 
 };
 
+function portionOfVisibleElement (el, container) {
+    var elemBB = el.getBoundingClientRect();
+    var containerBB = container.getBoundingClientRect();
+
+    //console.log("___S__________");
+    var isTopInContainer = containerBB.top < elemBB.top && containerBB.bottom > elemBB.top;
+    var isBottomInContainer = containerBB.bottom > elemBB.bottom && containerBB.top < elemBB.bottom;
+    //console.log(isTopInContainer, isBottomInContainer);
+    //console.log("___E__________");
+
+    if( isTopInContainer == true  && isBottomInContainer == true ){
+        //FULL OBJECT IS VISIBLE
+        //return el;
+        return {
+            coverPart:null,
+            element:el
+        };
+    }
+    else if (isTopInContainer == true  && isBottomInContainer == false ){
+        //PART OF THE BOTTOM IS HIDDEN
+        var missingBottom = Math.round((Math.abs(containerBB.bottom - elemBB.bottom)/elemBB.height)*100, 1);
+        return {
+            coverPart:'bottom',
+            percent:missingBottom,
+            element:el
+        };
+    }
+    else if (isTopInContainer == false  && isBottomInContainer == true ){
+        //PART OF THE TOP IS HIDDEN
+        var missingTop = Math.round((Math.abs(containerBB.top - elemBB.top)/elemBB.height)*100, 1);
+        return {
+            coverPart:'top',
+            percent:missingTop,
+            element:el
+        };
+    }
+    else{
+        //IT IS ALL HIDDEN
+    }
+    return null;
+
+    //return (
+    //rect.top >= 0 &&
+    //rect.left >= 0 &&
+    //rect.bottom <= (container.clientHeight) &&
+    //rect.right <= (container.clientWidth)
+    //);
+}
+
+
+function isElementInViewport (el, container) {
+    var rect = el.getBoundingClientRect();
+
+    return (
+    rect.top >= 0 &&
+    rect.left >= 0 &&
+    rect.bottom <= (container.clientHeight) &&
+    rect.right <= (container.clientWidth)
+    );
+}

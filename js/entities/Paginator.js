@@ -292,6 +292,8 @@ Paginator.prototype.buildAvatars = function(){
 
     this.$pageFrameAvatar = $('<div class="pageFrameAvatar"/>');
 
+    this.$viasibleItemsFrame = $('<div id="viasibleItemsFrame"/>');
+
 
 };
 Paginator.prototype.buildTable = function(){
@@ -361,6 +363,9 @@ Paginator.prototype.setPage = function(pageId){
 };
 Paginator.prototype.getPageFrameAvatar = function() {
     return this.$pageFrameAvatar;
+};
+Paginator.prototype.getViasibleItemsFrame = function() {
+    return this.$viasibleItemsFrame;
 };
 
 

@@ -128,9 +128,8 @@ wsServer.on('connection', function(ws){
             }break;
 
             case "onShareSelected":{
-                console.log('onShareSelected', clientData);
-                console.log(clientData['shareWith']);
-                console.log(clientData['eventObj']);
+                console.log('onShareSelected');
+                //console.log(clientData);
 
                 // create reusable transporter object using SMTP transport
                 var transporter = nodemailer.createTransport({
@@ -141,16 +140,33 @@ wsServer.on('connection', function(ws){
                     }
                 });
 
+                //recover the emails.
+                var shareWidth = [];
+                for(var collegueId in clientData['shareWith']){
+                    if(clientData['shareWith'].hasOwnProperty(collegueId)){
+
+                        var collegueObj = clientData['shareWith'][collegueId];
+                        var email = collegueObj['email'];
+                        shareWidth.push(email);
+                    }
+                }
+
+
                 // NB! No need to recreate the transporter object. You can use
                 // the same transporter object for all e-mails
+
+                var from = "Marco Falsitta";
+
+                var textMessage = from+' has share the following object to be debugged: '+CircularJSON.stringify(clientData['eventObj']);
+                var htmlMessage = "<b>"+textMessage+"</b>";
 
                 // setup e-mail data with unicode symbols
                 var mailOptions = {
                     from: 'Marco Falsitta <m.falsitta@genioo.com>', // sender address
-                    to: 'marco.falsitta@me.com, marco.falsitta@mac.com', // list of receivers
-                    subject: 'Hello ✔', // Subject line
-                    text: 'Hello world ✔', // plaintext body
-                    html: '<b>Hello world ✔</b>' // html body
+                    to: shareWidth.join(), // list of receivers
+                    subject: 'Shared item for debugging', // Subject line
+                    text: textMessage, // plaintext body
+                    html: htmlMessage // html body
                 };
 
                 // send mail with defined transport object

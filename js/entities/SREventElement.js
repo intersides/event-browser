@@ -25,6 +25,8 @@ SREventElement.prototype.createAvatars = function(){
 
     this.SREventElement = document.createElement("div");
     this.SREventElement.className = 'SREventElement minified';
+    this.SREventElement.setAttribute('id', this.params.random);
+
     this.SREventElement.eventObj = this.params;
 
     //

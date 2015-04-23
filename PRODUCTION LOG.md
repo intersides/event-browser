@@ -49,3 +49,5 @@ Apr 18 - Improving performance by converting some jQuery into vanilla javascript
 Apr 20 - Improving performance by converting some jQuery into vanilla javascript for event in its detail form. Preparing for filtering for product id.
 
 Apr 22 - working on adding sharing functionality from interface (json object sent to server via web-socket. Server send emails to colleagues containing object data)
+
+Apr 23 - finished the sharing functionality (still ugly, style to be improved), start working on scroll-feedback for the right column of minimized events
