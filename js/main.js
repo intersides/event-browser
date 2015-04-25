@@ -18,7 +18,7 @@ var collegues = {
         lastName:"Falsitta",
         email:"m.falsitta@genioo.com"
     }
-}
+};
 
 var SREventBrowser = function(in_params){
 
@@ -91,6 +91,17 @@ SREventBrowser.prototype.redrawDetailedElements = function(inBufferElements){
         this.$closerEventView.append(detailAvatar);
 
     }
+
+    console.info('all extended avatars have been attached');
+    //reset all the event elements currently belonging to the selected page.
+
+    var eventElementsInCurrentPage = document.getElementsByClassName("SREventElement selected");
+    for(var idx = 0; idx < eventElementsInCurrentPage.length; idx++){
+        var selectedElement = eventElementsInCurrentPage[idx];
+        selectedElement.removeAttribute('style');
+    }
+
+    this.cannotFindANameForThis(this.$closerEventView[0]);
 
 
 };
@@ -237,8 +248,9 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
         //process time stamp
         var htmlDate = srTimeStampToDate({srTimestamp:timestamp, format:"html"});
 
-        var inlineInfo = document.createElement('div');
-            inlineInfo.className = "inlineInfo";
+        var content = document.createElement('div');
+            content.className = "content";
+
         var visitorIdElem = document.createElement('span');
             visitorIdElem.className = "visitorId";
             visitorIdElem.textContent = visitorId;
@@ -358,24 +370,13 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
             timestampElem.appendChild(htmlDate);
 
 
-        SREventElementExtended.appendChild(inlineInfo);
-        SREventElementExtended.appendChild(visitorIdElem);
-        SREventElementExtended.appendChild(shareIconGrp);
-        SREventElementExtended.appendChild(timestampElem);
-        SREventElementExtended.appendChild(viewProductGrp);
-        SREventElementExtended.appendChild(impressionGrp);
+        SREventElementExtended.appendChild(content);
+        content.appendChild(visitorIdElem);
+        content.appendChild(shareIconGrp);
+        content.appendChild(timestampElem);
+        content.appendChild(viewProductGrp);
+        content.appendChild(impressionGrp);
 
-        //$SREventElementExtended.append(
-        //     $('<div class="inlineInfo"/>').append(
-        //     $('<span class="visitorId"/>').text(visitorId),
-        //     $('<span class="timestamp"/>').html(date)
-        //     ),
-        //     $viewProductsGrp,
-        //     $impressionGrp
-        //
-        // ).attr('id', visitorId);
-
-        //return $SREventElementExtended;
         return SREventElementExtended;
     }
     else{
@@ -780,8 +781,7 @@ SREventBrowser.prototype.bindDomEvents = function(){
 
             _this.paginator = new Paginator(paginationParams);
             var $pageFrameAvatar = _this.paginator.getPageFrameAvatar();
-            var $viasibleItemsFrame = _this.paginator.getViasibleItemsFrame();
-            _this.$wideEventView.append($pageFrameAvatar, $viasibleItemsFrame);
+            _this.$wideEventView.append($pageFrameAvatar);
 
             _this.eventManager.buildEventUI(evt.eventBunch, function(){
 
@@ -791,14 +791,9 @@ SREventBrowser.prototype.bindDomEvents = function(){
 
             });
 
-
         }
 
-
-
     });
-
-
 
     this.$app.on('srEventsInFocus', function(evt){
         //console.log(evt.eventsInFocus);
@@ -816,45 +811,39 @@ SREventBrowser.prototype.bindDomEvents = function(){
 
     this.$closerEventView.on('scroll', function() {
 
-        var _closerEventView = this;
+        var closerEventView = this;
+        var containerBB = closerEventView.getBoundingClientRect();
+        var lastPaginatedElementBB = (closerEventView.lastChild).getBoundingClientRect();
+        var firstPaginatedElementBB = (closerEventView.firstChild).getBoundingClientRect();
 
         clearTimeout($.data(this, 'scrollTimer'));
+
         $.data(this, 'scrollTimer', setTimeout(function() {
 
+            //reset all the event elements currently belonging to the selected page.
 
-            $('.SREventElement.selected').css({
-                "background":"rgba(75, 255, 65, 0.21)"
-            });
-
-            for(var childIdx = 0; childIdx < _closerEventView.children.length; childIdx++){
-                var srEventElementExtended = _closerEventView.children[childIdx];
-                var elementInRange = portionOfVisibleElement(srEventElementExtended, _closerEventView);
-                if(elementInRange){
-                    //SREventElementExtended.srId
-                    var elemntId = elementInRange.element.srId;
-
-                    if(elementInRange.coverPart){
-                        console.log(elementInRange.coverPart, elementInRange.percent);
-                        $('#'+elemntId).css({
-                            background: "-webkit-repeating-linear-gradient("+elementInRange.coverPart+", rgba(75, 255, 65, 0.21) 0%, rgba(75, 255, 65, 0.21) "+elementInRange.percent+"%, rgba(20, 55, 255, 0.21) "+elementInRange.percent+"%, rgba(20, 55, 255, 0.21) 100%)"
-                        });
-                    }
-                    else{
-                        //full element
-                        console.log("full", elemntId);
-
-                        $('#'+elemntId).css({
-                            background: "-webkit-repeating-linear-gradient(rgba(20, 55, 255, 0.21) 0%, rgba(20, 55, 255, 0.21) 100%)"
-                        });
-
-                    }
-                }
+            var eventElementsInCurrentPage = document.getElementsByClassName("SREventElement selected");
+            for(var idx = 0; idx < eventElementsInCurrentPage.length; idx++){
+                var selectedElement = eventElementsInCurrentPage[idx];
+                selectedElement.removeAttribute('style');
             }
 
 
-        }, 10));
+            //load previous page when try to scroll before first element
+            if(lastPaginatedElementBB.bottom == containerBB.bottom){
+                _this.paginator.gotoNext();
+                return;
+            }
 
-        //_this.bufferControlCloserView();
+            //load next page when try to scroll after last element
+            if(firstPaginatedElementBB.top == containerBB.top){
+                _this.paginator.gotoPrevious();
+                return;
+            }
+
+            _this.cannotFindANameForThis(closerEventView);
+
+        }, 10));
 
     });
 
@@ -870,8 +859,6 @@ SREventBrowser.prototype.bindDomEvents = function(){
         var pageIdContainigSelectedItem = _this.paginator.pageIndexContainingItemWithIndex(evt.target.atPosition);
         _this.paginator.setPage(pageIdContainigSelectedItem);
     });
-
-
 
     this.$app.on("onBuildEventAvatar",function(evt){
 
@@ -899,6 +886,37 @@ SREventBrowser.prototype.bindDomEvents = function(){
 
     });
 };
+
+SREventBrowser.prototype.cannotFindANameForThis = function(closerEventView){
+
+    for(var childIdx = 0; childIdx < closerEventView.children.length; childIdx++){
+
+        var srEventElementExtended = closerEventView.children[childIdx];
+
+        var elementInRange = portionOfVisibleElement(srEventElementExtended, closerEventView);
+        if(elementInRange){
+            //SREventElementExtended.srId
+            var elementId = elementInRange.element.srId;
+            var element = document.getElementById(elementId);
+
+            //centered element
+            var gradientStyle = "-webkit-repeating-linear-gradient(rgba(20, 55, 255, 0.21) 0%, rgba(20, 55, 255, 0.21) 100%)";
+
+            //partially covered element
+            if(elementInRange.coverPart){
+                gradientStyle = "-webkit-repeating-linear-gradient("+elementInRange.coverPart+", rgba(75, 255, 65, 0.21) 0%, rgba(75, 255, 65, 0.21) "+elementInRange.percent+"%, rgba(20, 55, 255, 0.21) "+elementInRange.percent+"%, rgba(20, 55, 255, 0.21) 100%)";
+            }
+
+            element.style.background = gradientStyle;
+            //element.className += "inRange";
+
+        }
+    }
+
+
+
+};
+
 SREventBrowser.prototype.requestService = function(in_requestedService){
 
     var service = 'default';
@@ -1042,15 +1060,11 @@ function portionOfVisibleElement (el, container) {
     var elemBB = el.getBoundingClientRect();
     var containerBB = container.getBoundingClientRect();
 
-    //console.log("___S__________");
     var isTopInContainer = containerBB.top < elemBB.top && containerBB.bottom > elemBB.top;
     var isBottomInContainer = containerBB.bottom > elemBB.bottom && containerBB.top < elemBB.bottom;
-    //console.log(isTopInContainer, isBottomInContainer);
-    //console.log("___E__________");
 
     if( isTopInContainer == true  && isBottomInContainer == true ){
         //FULL OBJECT IS VISIBLE
-        //return el;
         return {
             coverPart:null,
             element:el
@@ -1074,17 +1088,8 @@ function portionOfVisibleElement (el, container) {
             element:el
         };
     }
-    else{
-        //IT IS ALL HIDDEN
-    }
+    //else IT IS ALL HIDDEN
     return null;
-
-    //return (
-    //rect.top >= 0 &&
-    //rect.left >= 0 &&
-    //rect.bottom <= (container.clientHeight) &&
-    //rect.right <= (container.clientWidth)
-    //);
 }
 
 

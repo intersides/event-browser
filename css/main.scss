@@ -280,22 +280,36 @@ $topMargin:30px;
 .SREventElementExtended{
   position: relative;
   z-index: 1;
-  border: 1px solid #d3d3d3;
-  margin: 30px;
-  padding: 14px;
-  border-radius: 10px;
+  padding: 20px;
+
+  border-bottom: 1px dashed #d3d3d3;
+
+  .content{
+
+    padding: 14px;
+    border: 1px solid #d3d3d3;
+    border-radius: 10px;
+
+    .visitorId{
+      font-weight: bolder;
+    }
+
+  }
 
   &.out{
     background-color: red;
   }
 
-  .inlineInfo{
-    .visitorId{
-      font-weight: bolder;
-    }
-  }
 
   .viewProductsGrp{
+
+    .imgTagGrp{
+     .productImage{
+
+       width: 110px;
+       height: 160px;
+     }
+    }
 
     .scarabRecomended{
       border: 1px solid green;
@@ -318,22 +332,6 @@ $topMargin:30px;
       }
 
     }
-
-//    .imgTagGrp{
-//
-//      .productImage{
-//        display: inline-block;
-//        width: 80px;
-//        height: 100px;
-//        margin: 3px;
-//        background-repeat: no-repeat;
-//        background-size: contain;
-//        background-position: center center;
-//        border: 1px solid rgba(0, 0, 0, 0.4);
-//        vertical-align: middle;
-//        box-shadow: 2px 3px 5px rgba(0, 0, 0, 0.63);
-//      }
-//    }
 
   }
 
@@ -392,7 +390,8 @@ $topMargin:30px;
   z-index: 1;
   padding: 2px;
   font-size: 11px;
-  border: 1px solid #d3d3d3;
+  margin-bottom: 1px;
+//  border: 1px solid #d3d3d3;
   cursor: pointer;
 
   &.IN{
@@ -569,14 +568,6 @@ $topMargin:30px;
   min-height: 10px;
 }
 
-#viasibleItemsFrame{
-  position: absolute;
-  top:0;
-  right: 0;
-  width: 100%;
-  border: 1px solid red;
-  min-height: 10px;
-}
 
 .objectToSend{
   padding: 4px;

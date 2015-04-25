@@ -125,11 +125,14 @@ Paginator.prototype.bindDomEvents = function(){
 
 
     this.$paginatorTable.on('onPageChanged', function(evt){
-        //console.log('onPageChanged');
-        //deterine range
+
+        //recover range
         var startRange = _this.currentPage.params.range.start;
         var endRange = _this.currentPage.params.range.end;
 
+        console.log(startRange, endRange);
+
+        //set the relevant button as selected and clear the current one.
         var $currentPageButtonAvatar = _this.pages[_this.currentPage.params.idx].getPageButtonAvatar();
         $currentPageButtonAvatar.siblings().removeClass('selected');
         $currentPageButtonAvatar.addClass('selected');
@@ -291,9 +294,6 @@ Paginator.prototype.buildAvatars = function(){
 
 
     this.$pageFrameAvatar = $('<div class="pageFrameAvatar"/>');
-
-    this.$viasibleItemsFrame = $('<div id="viasibleItemsFrame"/>');
-
 
 };
 Paginator.prototype.buildTable = function(){

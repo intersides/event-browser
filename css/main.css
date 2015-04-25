@@ -166,14 +166,19 @@ body .initWarning {
 .SREventElementExtended {
   position: relative;
   z-index: 1;
-  border: 1px solid #d3d3d3;
-  margin: 30px;
-  padding: 14px;
-  border-radius: 10px; }
+  padding: 20px;
+  border-bottom: 1px dashed #d3d3d3; }
+  .SREventElementExtended .content {
+    padding: 14px;
+    border: 1px solid #d3d3d3;
+    border-radius: 10px; }
+    .SREventElementExtended .content .visitorId {
+      font-weight: bolder; }
   .SREventElementExtended.out {
     background-color: red; }
-  .SREventElementExtended .inlineInfo .visitorId {
-    font-weight: bolder; }
+  .SREventElementExtended .viewProductsGrp .imgTagGrp .productImage {
+    width: 110px;
+    height: 160px; }
   .SREventElementExtended .viewProductsGrp .scarabRecomended {
     border: 1px solid green;
     border-radius: 4px;
@@ -225,7 +230,7 @@ body .initWarning {
   z-index: 1;
   padding: 2px;
   font-size: 11px;
-  border: 1px solid #d3d3d3;
+  margin-bottom: 1px;
   cursor: pointer; }
   .SREventElement.IN {
     font-weight: bold; }
@@ -323,14 +328,6 @@ body .initWarning {
   top: 0;
   right: 0;
   width: 100%;
-  min-height: 10px; }
-
-#viasibleItemsFrame {
-  position: absolute;
-  top: 0;
-  right: 0;
-  width: 100%;
-  border: 1px solid red;
   min-height: 10px; }
 
 .objectToSend {
