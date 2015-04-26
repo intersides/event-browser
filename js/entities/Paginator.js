@@ -123,17 +123,24 @@ Paginator.prototype.bindDomEvents = function(){
 
     });
 
-
     this.$paginatorTable.on('onPageChanged', function(evt){
+
+        //console.info('Paginator:onPageChanged');
+        var triggeringElementId = null;
+        if(evt.triggeringElementId){
+            triggeringElementId = evt.triggeringElementId;
+        }
+
 
         //recover range
         var startRange = _this.currentPage.params.range.start;
         var endRange = _this.currentPage.params.range.end;
 
-        console.log(startRange, endRange);
+        //console.log(startRange, endRange);
 
         //set the relevant button as selected and clear the current one.
         var $currentPageButtonAvatar = _this.pages[_this.currentPage.params.idx].getPageButtonAvatar();
+
         $currentPageButtonAvatar.siblings().removeClass('selected');
         $currentPageButtonAvatar.addClass('selected');
 
@@ -172,7 +179,8 @@ Paginator.prototype.bindDomEvents = function(){
             eventsInFocus:srEventsInFocus
         });
 
-        _this.refreshFrameAvatar();
+
+        _this.refreshFrameAvatar(triggeringElementId);
 
 
     });
@@ -188,93 +196,63 @@ Paginator.prototype.assignLittleAvatar = function(in_index, in_$avatar){
 
     var pageIndex = this.pageIndexContainingItemWithIndex(in_index);
 
-
-    this.pages[pageIndex].littleBros[in_index] = in_$avatar;
+    this.pages[pageIndex].navEventAvatars[in_index] = in_$avatar;
 
     //console.warn(in_index, this.params.itemsPerPage, pageIndex, this.pages[pageIndex]);
 
-
-
 };
-Paginator.prototype.refreshFrameAvatar = function() {
-    //this.$pageFrameAvatar
+Paginator.prototype.refreshFrameAvatar = function(triggeringElementId) {
+
+    console.info("Paginator:refreshFrameAvatar, need to identify who triggered the selection");
+
+
+
     var _this = this;
     var startRange = this.currentPage.params.range.start;
     var endRange = this.currentPage.params.range.end;
 
-    var $allSREventElements = $('.SREventElement');
-    $allSREventElements.removeClass('selected');
+    var allSREventElements = document.getElementsByClassName('SREventElement');
+    domExtendedRemoveClass(allSREventElements, 'selected');
 
-    var $firstOfPage = this.currentPage.littleBros[startRange];
+    var $firstOfPage = this.currentPage.navEventAvatars[startRange];
 
-
-    //cannot rely on th endRange since in the last page, there might be less items that the page full range
-    var $lastOfPage = this.currentPage.littleBros[endRange];
+    //cannot rely on endRange since in the last page
+    //there might be less items that the page full range
+    var $lastOfPage = this.currentPage.navEventAvatars[endRange];
     var lastItemIndex = endRange;
-    for(var idx in this.currentPage.littleBros){
-        $lastOfPage = this.currentPage.littleBros[idx];
+    for(var idx in this.currentPage.navEventAvatars){
+        $lastOfPage = this.currentPage.navEventAvatars[idx];
         lastItemIndex = idx;
     }
 
     if(typeof $firstOfPage !== "undefined"){
 
-        //console.log($firstOfPage, $lastOfPage);
-        var containerScrollTop = $('#wideEventView').scrollTop();
+        for(var i = startRange; i <= lastItemIndex; i++){
 
-        var $firstSREventElement = $($firstOfPage.SREventElement);
-        var $lastSREventElement = $($lastOfPage.SREventElement);
+            var navEventAvatars = _this.currentPage.navEventAvatars[i];
 
-        this.$pageFrameAvatar.animate({
-            top:$firstSREventElement.position().top+containerScrollTop,
-            height:$lastSREventElement.position().top-$firstSREventElement.position().top+$firstSREventElement.outerHeight()
-        }, 200, function(){
-
-            for(var i = startRange; i <= lastItemIndex; i++){
-
-                var $littleBroAvatar = _this.currentPage.littleBros[i];
-
-
-                if(typeof $littleBroAvatar !== "undefined"){
-                    $littleBroAvatar.SREventElement.className += ' selected';
-                }
-
+            if(typeof navEventAvatars !== "undefined"){
+                navEventAvatars.SREventElement.className += ' selected';
             }
 
-            //check if the frame is off bounds or visibility.
-            var $frame = $(this);
-            var $frameParent = $frame.parent();
-
-            console.log($frame.length, $frameParent.length);
-
-
-            var frameOffsetTop = $frame.offset().top;
-            var frameParentOffsetTop = $frameParent.offset().top;
-
-            var topDifference = frameOffsetTop - frameParentOffsetTop;
-            if(topDifference < 0){
-
-                $frameParent.animate({
-                    scrollTop:"+="+topDifference
-                }, 200);
-
-            }
-            else{
-                var bottomDiff = (frameParentOffsetTop + $frameParent.outerHeight()) - ( frameOffsetTop+$frame.outerHeight());
-                if(bottomDiff < 0){
-                    $frameParent.animate({
-                        scrollTop:"-="+bottomDiff
-                    }, 200);
-
-                }
-                //console.log(bottomDiff);
-
-            }
-
-        });
+        }
     }
     else{
         console.error('cannot find the $firstOfPage avatar');
     }
+
+    if(triggeringElementId){
+
+
+        var srEventElementExtended = document.querySelector('[data-srid="'+triggeringElementId+'"]');
+
+        $(srEventElementExtended).trigger({
+            type:"onSREventReadyToBeCentered"
+        });
+
+
+    }
+
 
 
 };
@@ -293,7 +271,7 @@ Paginator.prototype.buildAvatars = function(){
     });
 
 
-    this.$pageFrameAvatar = $('<div class="pageFrameAvatar"/>');
+    //this.$pageFrameAvatar = $('<div class="pageFrameAvatar"/>');
 
 };
 Paginator.prototype.buildTable = function(){
@@ -348,32 +326,44 @@ Paginator.prototype.gotoPrevious = function(pageId){
     }
 
 };
-Paginator.prototype.setPage = function(pageId){
+Paginator.prototype.setPage = function(pageId, srEventId){
+
+    var triggeringElementId = null;
+    if(srEventId){
+        triggeringElementId = srEventId;
+    }
+
 
     if(this.pages.length > 0){
         this.currentPage = this.pages[pageId];
-        this.$paginatorTable.trigger('onPageChanged');
+        this.$paginatorTable.trigger({
+            type:'onPageChanged',
+            triggeringElementId:triggeringElementId
+        });
     }
     else{
         console.warn('paginator has no pages');
         this.$paginatorTable.trigger('onEmptyPages');
-
     }
 
 };
-Paginator.prototype.getPageFrameAvatar = function() {
-    return this.$pageFrameAvatar;
+Paginator.prototype.getCurrentPage = function(){
+    return this.currentPage;
 };
-Paginator.prototype.getViasibleItemsFrame = function() {
-    return this.$viasibleItemsFrame;
-};
+//Paginator.prototype.getPageFrameAvatar = function() {
+//    return this.$pageFrameAvatar;
+//};
+
+//Paginator.prototype.getViasibleItemsFrame = function() {
+//    return this.$viasibleItemsFrame;
+//};
 
 
 var Page = function(in_params){
     this.params = $.extend({
     }, in_params);
 
-    this.littleBros = [];
+    this.navEventAvatars = [];
 
     this.init();
     this.buildAvatars();
@@ -404,3 +394,7 @@ Page.prototype.setPageButtonAvatar = function(in_$pageButton) {
 Page.prototype.getPageButtonAvatar = function() {
     return this.$buttonAvatar;
 };
+Page.prototype.getIndex = function(){
+    return this.params.idx;
+};
+

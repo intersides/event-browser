@@ -73,6 +73,8 @@ SREventBrowser.prototype.init = function(){
         filter:'uid'
     });
 
+
+
 };
 SREventBrowser.prototype.initAvatar = function(){
     return $("body").attr('id', 'SREventBrowser').empty();
@@ -101,7 +103,7 @@ SREventBrowser.prototype.redrawDetailedElements = function(inBufferElements){
         selectedElement.removeAttribute('style');
     }
 
-    this.cannotFindANameForThis(this.$closerEventView[0]);
+    this.underlineEventsInMainFrame(this.$closerEventView[0]);
 
 
 };
@@ -114,12 +116,12 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
     var SREventElementExtended = document.createElement('div');
         SREventElementExtended.className = "SREventElementExtended";
 
-    var $SREventElementExtended = $("<div class='SREventElementExtended'/>");
 
     if(typeof elemObj !== "undefined"){
 
 
         SREventElementExtended.srId = elemObj.random;
+        SREventElementExtended.setAttribute("data-srId", elemObj.random);
 
         var visitorId =elemObj.visitor_id;
         var timestamp =elemObj.timestamp;
@@ -387,162 +389,7 @@ SREventBrowser.prototype.createDetailAvatar = function(elemObj){
 
 };
 
-/*
-SREventBrowser.prototype.createIndividualVisitorAvatar = function(visitorId, elemObj){
 
-    var _this = this;
-
-    //console.log(elemObj);
-
-    var $SRIndividualVisitorElement = $("<div class='SRIndividualVisitorElement'/>");
-
-    var visitorId =visitorId;
-    var timestamps =elemObj.timestamps;
-
-
-    var $visitorId = $('<div class="visitorId"/>').text(visitorId).appendTo($SRIndividualVisitorElement);
-    var $historyContainer = $('<div class="historyContainer"/>').appendTo($SRIndividualVisitorElement);
-
-
-    for(var timeStampId in timestamps){
-
-        var historyBox = timestamps[timeStampId];
-
-        //historyItems
-        var $historyItem = $('<fieldset class="historyItem"/>');
-        $historyContainer.append($historyItem);
-
-        var $random = $('<legend class="random" align="right" />').text(historyBox.random);
-        $historyItem.append($random);
-
-        var $timeStampAsDate = srTimeStampToDate({srTimestamp:timeStampId, format:"jquery"});
-
-        var $timestamp = $('<div class="timeStamp" />').html($timeStampAsDate);
-        $historyItem.append($timestamp);
-
-        var $productsGrp = $('<div class="productsGrp"/>');
-        $historyItem.append($productsGrp);
-
-
-        var viewed_productsArray = historyBox['viewed_products'];
-
-        if(typeof viewed_productsArray != "undefined"){
-
-            for(var i = 0; i < viewed_productsArray.length; i++){
-                var product = viewed_productsArray[i];
-                $productsGrp.append(
-                    $('<div class="product"/>').text(product.id)
-                );
-
-            }
-
-        }
-
-        var impressions = historyBox['impressions'];
-        //console.log(impressions);
-
-        if(typeof impressions != "undefined"){
-
-            var $impressionsGrp = $('<div class="impressionsGrp"/>');
-            $productsGrp.append(
-                $impressionsGrp
-            );
-
-            for(var i = 0; i < impressions.length; i++){
-
-                var impression = impressions[i];
-
-                if(impression.feature_id !== "undefined"){
-                    $impressionsGrp.append(
-                        $('<div class="product"/>').text(impression.feature_id)
-                    );
-
-                }
-
-                var item_impressions = impression.item_impressions;
-
-                if(item_impressions !== "undefined"){
-
-                    var $item_impressions = $('<div class="impressions"/>')
-
-                    $impressionsGrp.append($item_impressions);
-
-                    for(var ipIdx = 0; ipIdx < item_impressions.length; ipIdx++){
-
-                        $item_impressions.append(
-                            $('<span class="impressionItem"/>').text(item_impressions[ipIdx])
-                        )
-
-                    }
-
-                }
-
-
-
-
-
-            }
-
-        }
-
-        var cart = historyBox['cart'];
-
-        if(typeof cart != "undefined"){
-
-            for(var ci = 0; ci < cart.length; ci++){
-                var cartItem = cart[ci];
-                $productsGrp.append(
-                    $('<div class="cartItem"/>').text(cartItem.id)
-                );
-
-            }
-
-
-        }
-
-        //if cart, more likely there are added products
-        var added_products = historyBox['added_products'];
-
-        if(typeof added_products != "undefined"){
-
-            //console.log(historyBox);
-
-            for(var api = 0; api < added_products.length; api++){
-
-                var productInCart = added_products[api];
-
-
-                //f, id, q, p
-                if(typeof productInCart.f == "undefined"){
-                    productInCart.f = null;
-                    console.log("*****");
-                    console.log("NULL", productInCart);
-
-                }
-
-
-                $productsGrp.append(
-                    $('<div class="productInCart"/>').append(
-
-                        $('<div class="f"/>').text(productInCart.f),
-                        $('<div class="id"/>').text(productInCart.id),
-                        $('<div class="quantity"/>').text(productInCart.q),
-                        $('<div class="price"/>').text(productInCart.p)
-
-                    )
-                );
-
-            }
-
-        }
-
-    }
-
-    return $SRIndividualVisitorElement;
-
-
-};
-*/
 SREventBrowser.prototype.buildSearchTool = function(){
 
     var _this = this;
@@ -668,87 +515,7 @@ SREventBrowser.prototype.buildInterfaceLayout = function(){
 
 };
 
-SREventBrowser.prototype.bufferControlCloserView = function() {
 
-    var mTop = this.$closerEventView.offset().top;
-
-    $('.SREventElementExtended').each(function() {
-
-        var $SREX = $(this);
-
-        if($SREX.attr('id') == "4F6B6D2E72F75AA7"){
-            var thisTop = $SREX.offset().top;
-            var thisHeight = $SREX.outerHeight();
-            if(thisTop+thisHeight < mTop){
-                console.log('hide');
-            }
-        }
-
-    });
-
-};
-SREventBrowser.prototype.bufferControl = function() {
-
-    return;
-
-    var smallViewTop = this.$smallViewBuffer.offset().top;
-    var smallViewH = smallViewTop+this.$smallViewBuffer.outerHeight();
-
-
-    var inBufferElements = [];
-
-    $('.SREventElement').each(function(){
-
-        var _$SREventElement = $(this);
-
-        var topMarkerOffsetTop = _$SREventElement.offset().top;
-
-        //if($(this).is('#53950BF0AAA8AEC0')){
-        //    console.log(topMarkerOffsetTop, smallViewH);
-        //}
-
-        if(
-            topMarkerOffsetTop < smallViewH
-            &&
-            topMarkerOffsetTop > smallViewTop
-        ){
-
-            inBufferElements.push(_$SREventElement.data().eventObj);
-
-            _$SREventElement.trigger({
-                type:"onInView"
-            });
-        }
-        else{
-            _$SREventElement.trigger({
-                type:"onOutView"
-            });
-        }
-
-
-    });
-
-    this.redrawDetailedElements(inBufferElements);
-
-
-
-    //get the first element of the list.
-    //var $firstElement = $('.SREventElement.IN').first().data('twin');
-    //
-    //
-    //var elementPosition = $firstElement.offset().top;
-    //
-    //var goto = this.$closerEventView.offset().top - elementPosition;
-    //
-    //var _this = this;
-    //
-    //this.$closerEventView.stop().animate({
-    //    top: goto
-    //}, 500, function(){
-    //    console.info($firstElement.attr('id'));
-    //});
-
-};
 SREventBrowser.prototype.bindDomEvents = function(){
     var _this = this;
 
@@ -763,6 +530,12 @@ SREventBrowser.prototype.bindDomEvents = function(){
     this.$app.on('onEmptyFilterResults', function(evt){
       var $filterInput = $("#filter");
       $filterInput.parent().addClass("notFound");
+    });
+
+
+    //trigger onElementInCenter
+    this.$app.on('onElementInCenter', function(evt){
+        console.warn('onElementInCenter::triggered');
     });
 
     this.$app.on('onEventsBunchReadyToDraw', function(evt){
@@ -780,8 +553,8 @@ SREventBrowser.prototype.bindDomEvents = function(){
             };
 
             _this.paginator = new Paginator(paginationParams);
-            var $pageFrameAvatar = _this.paginator.getPageFrameAvatar();
-            _this.$wideEventView.append($pageFrameAvatar);
+            //var $pageFrameAvatar = _this.paginator.getPageFrameAvatar();
+            //_this.$wideEventView.append($pageFrameAvatar);
 
             _this.eventManager.buildEventUI(evt.eventBunch, function(){
 
@@ -805,7 +578,7 @@ SREventBrowser.prototype.bindDomEvents = function(){
         clearTimeout($.data(this, 'scrollTimer'));
         $.data(this, 'scrollTimer', setTimeout(function() {
             // do something
-            _this.bufferControl();
+            //_this.bufferControl();
         }, 100));
     });
 
@@ -829,19 +602,23 @@ SREventBrowser.prototype.bindDomEvents = function(){
             }
 
 
-            //load previous page when try to scroll before first element
-            if(lastPaginatedElementBB.bottom == containerBB.bottom){
-                _this.paginator.gotoNext();
-                return;
+            //TODO:reavaulate this functionality
+            if(false){
+                //load previous page when try to scroll before first element
+                if(lastPaginatedElementBB.bottom == containerBB.bottom){
+                    _this.paginator.gotoNext();
+                    return;
+                }
+
+                //load next page when try to scroll after last element
+                if(firstPaginatedElementBB.top == containerBB.top){
+                    _this.paginator.gotoPrevious();
+                    return;
+                }
+
             }
 
-            //load next page when try to scroll after last element
-            if(firstPaginatedElementBB.top == containerBB.top){
-                _this.paginator.gotoPrevious();
-                return;
-            }
-
-            _this.cannotFindANameForThis(closerEventView);
+            _this.underlineEventsInMainFrame(closerEventView);
 
         }, 10));
 
@@ -854,10 +631,58 @@ SREventBrowser.prototype.bindDomEvents = function(){
         );
     });
 
+    //onSREventReadyToBeCentered
+    this.$app.on("onSREventReadyToBeCentered",function(evt){
+
+        var srEventElementExtended = evt.target;
+
+        //center the element into its container
+        var closerEventView = _this.$closerEventView[0];
+
+        var containerBB = closerEventView.getBoundingClientRect();
+        var srEventElementExtendedBB = srEventElementExtended.getBoundingClientRect();
+
+        //var containerY = containerBB.top;
+        //var srEventElementExtendedCenterY = srEventElementExtendedBB.top;
+        var containerY = containerBB.top+containerBB.height/2;
+        var srEventElementExtendedCenterY = srEventElementExtendedBB.top+srEventElementExtendedBB.height/2;
+        var scrollTo = srEventElementExtendedCenterY-containerY;
+
+        if(scrollTo > 0){
+            closerEventView.scrollTop += scrollTo;
+        }
+        else{
+            closerEventView.scrollTop -= Math.abs(scrollTo);
+
+        }
+
+    });
+
+
     this.$app.on('onLittleBrotherClicked', function(evt){
-        //console.log(evt.target.atPosition);
+        console.log('onLittleBrotherClicked');
+
         var pageIdContainigSelectedItem = _this.paginator.pageIndexContainingItemWithIndex(evt.target.atPosition);
-        _this.paginator.setPage(pageIdContainigSelectedItem);
+
+        var srId = _this.paginator.params.srEvents[evt.target.atPosition].random;
+
+
+        var srEventElementExtended = null;
+        if(pageIdContainigSelectedItem !==  _this.paginator.getCurrentPage().getIndex()){
+            _this.paginator.setPage(pageIdContainigSelectedItem, srId);
+        }
+        else{
+            srEventElementExtended = document.querySelector('[data-srid="'+srId+'"]');
+            $(srEventElementExtended).trigger({
+                type:"onSREventReadyToBeCentered"
+            });
+            //srEventElementExtended = document.getElementById(_this.paginator.params.srEvents[evt.target.atPosition].random);
+        }
+
+        //console.log(evt.target.atPosition, _this.paginator.params.srEvents[evt.target.atPosition]);
+        //console.log(srEventElementExtended);
+
+
     });
 
     this.$app.on("onBuildEventAvatar",function(evt){
@@ -887,28 +712,57 @@ SREventBrowser.prototype.bindDomEvents = function(){
     });
 };
 
-SREventBrowser.prototype.cannotFindANameForThis = function(closerEventView){
+SREventBrowser.prototype.underlineEventsInMainFrame = function(closerEventView){
+
+    var gradientDegradationStep = 5;
 
     for(var childIdx = 0; childIdx < closerEventView.children.length; childIdx++){
 
         var srEventElementExtended = closerEventView.children[childIdx];
 
         var elementInRange = portionOfVisibleElement(srEventElementExtended, closerEventView);
+
         if(elementInRange){
-            //SREventElementExtended.srId
+
             var elementId = elementInRange.element.srId;
             var element = document.getElementById(elementId);
 
             //centered element
-            var gradientStyle = "-webkit-repeating-linear-gradient(rgba(20, 55, 255, 0.21) 0%, rgba(20, 55, 255, 0.21) 100%)";
+            var gradientStyle = "linear-gradient(lightsteelblue 0%, lightsteelblue 100%)";
+
 
             //partially covered element
             if(elementInRange.coverPart){
-                gradientStyle = "-webkit-repeating-linear-gradient("+elementInRange.coverPart+", rgba(75, 255, 65, 0.21) 0%, rgba(75, 255, 65, 0.21) "+elementInRange.percent+"%, rgba(20, 55, 255, 0.21) "+elementInRange.percent+"%, rgba(20, 55, 255, 0.21) 100%)";
+
+                if(elementInRange.coverPart == "both"){
+
+                    var topStart = elementInRange.coverages.top.value;
+                    var topEnd = topStart+gradientDegradationStep;
+
+                    var bottomStart = 100 - elementInRange.coverages.bottom.value;
+                    var bottomEnd = bottomStart+gradientDegradationStep;
+
+                    gradientStyle = "linear-gradient(lightgreen "+topStart+"%, lightsteelblue "+topEnd+"%, lightsteelblue "+bottomEnd+"%, lightgreen "+bottomStart+"%)";
+                    //console.log(gradientStyle);
+
+
+                }
+                else{
+
+                    gradientStyle = "-webkit-repeating-linear-gradient("+elementInRange.coverPart+", lightgreen 0%, lightgreen "+elementInRange.percent+"%, lightsteelblue "+elementInRange.percent+"%, lightsteelblue 100%)";
+                }
+
             }
 
             element.style.background = gradientStyle;
             //element.className += "inRange";
+
+            if(elementInRange.isCentral){
+                //console.info(elementInRange.element, 'is most central');
+                $(elementInRange.element).trigger("onElementInCenter");
+
+            }
+
 
         }
     }
@@ -1060,14 +914,22 @@ function portionOfVisibleElement (el, container) {
     var elemBB = el.getBoundingClientRect();
     var containerBB = container.getBoundingClientRect();
 
+    var elemVerticalCenter = elemBB.height / 2 + elemBB.top;
+
     var isTopInContainer = containerBB.top < elemBB.top && containerBB.bottom > elemBB.top;
     var isBottomInContainer = containerBB.bottom > elemBB.bottom && containerBB.top < elemBB.bottom;
+    var isCenterInContainer = containerBB.bottom > elemVerticalCenter && containerBB.top < elemVerticalCenter;
 
-    if( isTopInContainer == true  && isBottomInContainer == true ){
+    //console.log(isTopInContainer, isBottomInContainer, isCenterInContainer);
+
+
+
+    if( isTopInContainer == true  && isBottomInContainer == true){
         //FULL OBJECT IS VISIBLE
         return {
             coverPart:null,
-            element:el
+            element:el,
+            isCentral:isCenterInContainer
         };
     }
     else if (isTopInContainer == true  && isBottomInContainer == false ){
@@ -1076,7 +938,8 @@ function portionOfVisibleElement (el, container) {
         return {
             coverPart:'bottom',
             percent:missingBottom,
-            element:el
+            element:el,
+            isCentral:isCenterInContainer
         };
     }
     else if (isTopInContainer == false  && isBottomInContainer == true ){
@@ -1085,7 +948,27 @@ function portionOfVisibleElement (el, container) {
         return {
             coverPart:'top',
             percent:missingTop,
-            element:el
+            element:el,
+            isCentral:isCenterInContainer
+        };
+    }
+    else if(isCenterInContainer == true){
+
+        var missingBottomForCentralItem = Math.round((Math.abs(containerBB.bottom - elemBB.bottom)/elemBB.height)*100, 1);
+        var missingTopForCentralItem = Math.round((Math.abs(containerBB.top - elemBB.top)/elemBB.height)*100, 1);
+
+        return {
+            coverPart:"both",
+            coverages:{
+                top:{
+                    value:missingTopForCentralItem
+                },
+                bottom:{
+                    value:missingBottomForCentralItem
+                }
+            },
+            element:el,
+            isCentral:isCenterInContainer
         };
     }
     //else IT IS ALL HIDDEN
@@ -1103,3 +986,38 @@ function isElementInViewport (el, container) {
     rect.right <= (container.clientWidth)
     );
 }
+
+//EXTEND DOM ELEMENT (adding support for HTMLCollections)
+//ref: http://www.openjs.com/scripts/dom/class_manipulation.php
+function domExtendedHasClass(ele,cls) {
+    return ele.className.match(new RegExp('(\\s|^)'+cls+'(\\s|$)'));
+}
+function domExtendedAddClass(ele,cls) {
+
+    if( Object.prototype.toString.call( ele ) === '[object HTMLCollection]' ) {
+        Array.prototype.forEach.call(ele, function(el) {
+            domExtendedAddClass(el, cls);
+        });
+    }
+    else{
+        if (!this.domExtendedHasClass(ele,cls)) ele.className += " "+cls;
+    }
+
+}
+function domExtendedRemoveClass(ele,cls) {
+
+    if( Object.prototype.toString.call( ele ) === '[object HTMLCollection]' ) {
+        Array.prototype.forEach.call(ele, function(el) {
+            domExtendedRemoveClass(el, cls);
+        });
+    }
+    else{
+        if (domExtendedHasClass(ele,cls)) {
+            var reg = new RegExp('(\\s|^)'+cls+'(\\s|$)');
+            ele.className=ele.className.replace(reg,' ');
+        }
+    }
+
+
+}
+

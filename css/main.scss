@@ -440,13 +440,12 @@ $topMargin:30px;
     }
   }
 
-  &.selected{
-    background-color: rgba(75, 255, 65, 0.21);
+  &.inRange{
+    background-color: lightsteelblue;
   }
 
-  &.inRange{
-    background-color: rgba(20, 55, 255, 0.21);
-
+  &.selected{
+    background-color: lightgreen;
   }
 
 }
@@ -558,16 +557,6 @@ $topMargin:30px;
 
   }
 }
-
-.pageFrameAvatar{
-  position: absolute;
-  top:0;
-  right: 0;
-  width: 100%;
-//  border: 1px solid red;
-  min-height: 10px;
-}
-
 
 .objectToSend{
   padding: 4px;
