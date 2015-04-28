@@ -1,3 +1,13 @@
+# Run the project
+
+The project depends on node.js since it implements a pre-loader useful for large data transfer.
+Nodejs is also used to send email notifications as part of the task to share "interesting data" with team members.
+
+User npm to install the node modules locally and **npm start** to run the applicatin server.
+
+After that navigate to **http://localhost:7777/**
+
+
 # Event Browser Production log
 
 This file should be considered as a development diary and not a production document therefore it might not be correctly updated with the latest code.
@@ -51,3 +61,5 @@ Apr 20 - Improving performance by converting some jQuery into vanilla javascript
 Apr 22 - working on adding sharing functionality from interface (json object sent to server via web-socket. Server send emails to colleagues containing object data)
 
 Apr 23 - finished the sharing functionality (still ugly, style to be improved), start working on scroll-feedback for the right column of minimized events
+
+
