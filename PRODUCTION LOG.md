@@ -6,7 +6,9 @@ Nodejs is also used to send email notifications as part of the task to share "in
 User npm to install the node modules locally and **npm start** to run the applicatin server.
 
 1 - npm install
+
 2 - npm start
+
 3 - navigate to ** [http://localhost:7777/](http://localhost:7777/ "local project") **
 
 **The current code is only optimized for latest Chrome. (I only tested on OS X Yosemite) **
