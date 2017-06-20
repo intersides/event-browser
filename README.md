@@ -1,18 +1,13 @@
 # Event Browser
 
-A homework assignment for testing your front-end chops.
-
 ## Problem Statement
 
-Here at Scarab Research, we collect a huge amount of behavioral data: customers view and buy products, add them to their carts and wishlists, search for various terms, browse category pages. They also look at and click on recommendations and ads served by our servers. Hundreds of these events happen every single second.
+Collecting a huge amount of behavioral data: customers view and buy products, add them to their carts and wishlists, search for various terms, browse category pages. They also look at and click on recommendations and ads served by our servers. Hundreds of these events happen every single second.
 
-Our algorithms are very good at chewing through this raw stream of data, but it would be nice for us humans to be able to make sense of it as well.
 
-**Your task is to build a tool that gives us X-ray vision into the event stream.**
+### The data
 
-### The data you get
-
-The template in this repository loads the event stream into the global variable `events`. It is an array containing event objects. Let's pretend that you got this data from an actual live web service. It should be fairly obvious to figure out what's in the data without a schema (use an inspector like Chrome DevTools).
+The template in this repository loads the event stream into the global variable `events`. It is an array containing event objects. 
 
 Some notes on non-trivial fields:
 
@@ -27,7 +22,7 @@ Some notes on non-trivial fields:
     * a list of recommender boxes (features) that was shown to the visitor (eg. RELATED, PERSONAL)
     * each entry contains a list of product IDs (`item_impressions`)
 
-One event may contain several of the above fields. For example the following event object says that visitor `4F6B6D2E72F75AA7` viewed product `149923` and was presented with a recommendation box (RELATED_CZ) containing 6 products.
+One event may contain several of the above fields. For example the following event object says that visitor `4F6B6D2E72F75AA7` viewed product `149923` and was presented with a recommendation box containing 6 products.
 
     impressions: Array[1]
       0: Object
@@ -54,29 +49,24 @@ Use the `getImage` global function to get an image thumbnail representing the pr
 
 Build a page that shows the event stream line-by-line, just as if it were a Twitter feed. Show the most recent event first. The actual display is up to you, but you should show us everything you can about a particular event (timestamp, visitor ID, event type(s), products that the visitor interacted with, at least the first few products that we recommended to the user, price & quantity in case of a purchase/add-to-cart). On the other hand, the representation of an event should be concise, we want to see as many events as possible on a single screen.
 
-Events that are generated directly from Scarab recommendation boxes (`iteminfo.f != null`) should really stand out visually.
+Events that are generated directly from recommendation boxes (`iteminfo.f != null`) should really stand out visually.
 
-You might want to avoid showing all the events at once (you don't want the browser to load thousands of images). Provide some sort of pagination facility instead.
+Pagination facility.
 
 ### Task 2 - Filter individual visitors
 
-Now we have a way of eyeballing the event stream, which is cool, but using this tool still feels like drinking from a fire hose. Let's say we want to see how a specific visitor interacts with the site. Clicking on a visitor ID in the event stream should show events from that particular visitor, and everything else should be filtered out.
-
-Nice to have:
-
-* Do this without a page refresh
-* Don't break the browser's history handling. (Use the History API.)
-* If I find an interesting visitor history (eg. where the recommendations are horrendously wrong) I should be able to send my current view over to the rest of the team so that we can investigate together. (Make the visitor ID part of the URL.)
+Eyeballing the event stream. 
+Clicking on a visitor ID in the event stream should show events from that particular visitor, and everything else should be filtered out.
 
 ### Task 3 - Filter individual products
 
-This is similar to task #2, but with product IDs. When I click on a product ID, I should see all the events that have anything to do with that particular product (and nothing else).
+Use product IDs. When lick on a product ID, should see all the events that have anything to do with that particular product (and nothing else).
 
 ### Task 4 - Top visitors
 
-Having the ability to filter individual visitors and products is nice, but it's still hard to find the really interesting visitors.
+Having the ability to filter individual visitors, find the really interesting visitors.
 
-Provide a little statistics page (if possible within the application, without a page load) that summarizes some interesting metrics of the top 20 visitors:
+Little statistics page (if possible within the application, without a page load) that summarizes some interesting metrics of the top 20 visitors:
 
 * total number of events generated by the visitor
 * number of views
@@ -85,20 +75,6 @@ Provide a little statistics page (if possible within the application, without a 
 * number of clicks (views where `iteminfo.f != null`)
 * click-through-rate (number of clicks divided by the number of impressions)
 
-It would be nice to be able to sort this little table by the above metrics. Clicking on a visitor ID should take me back to that visitor's event stream.
-
-## Your Submission
-
-1. fork this repository here, on Bitbucket.
-2. solve the assignment (commit early and often!)
-3. invite us to your repo (andrascsibi, phraktle, dfogaras)
-
 ### Additional notes/hints
 
-* Don't waste your time with IE8. We will test your tool with the latest Chrome and Firefox.
-* Use any CSS/JS library/framework you want. Good coders code, great reuse.
-* Don't spend a lot of time with visuals. The tool should look OK, but above all else, it should be functional. A minimalist approach that doesn't hurt our eyes should be fine. If you have the time to make it smooth and shiny (but won't distract from the data), it's great, impress us!
-* You might want to use some templating facility to generate page components (`document.createElement()` will quickly get out of hand).
-* You might find that expressing the filtering/statistics problems using functional programming idioms (map, filter, reduce) will result in clean, elegant code. Or the contrary:) Do whatever floats your boat and results in your nicest code.
-* Don't be stressed out if you are running out of time. Do the agile thing, and cut the scope. Just get something to work and push it out to production. Somebody's going to finish up the rest incrementally:)
-
+* Avoided time with visuals. The tool should look OK, but above all else, it should be functional. A minimalist approach that doesn't hurt our eyes should be fine.
